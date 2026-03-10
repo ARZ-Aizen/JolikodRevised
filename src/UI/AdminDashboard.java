@@ -1,10 +1,11 @@
 package UI;
 
+import Database.DataManager;
 import java.awt.CardLayout;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class AdminDashboard {
@@ -33,25 +34,16 @@ public class AdminDashboard {
     private JScrollPane FoodScroll;
     private JScrollPane UserScroll;
     private JFrame frame;
+    private DataManager dataManager;
 
     //
 
     private void deleteUserFromDatabase(int id) {
-        String url = "jdbc:sqlite:src/Database/jolikod.db";
-        String sql = "DELETE FROM users WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(url);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, id);
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                JOptionPane.showMessageDialog(frame, "User deleted successfully!");
-                loadUsersToTable();
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(frame, "Error deleting user: " + ex.getMessage());
+        if (dataManager.deleteUser(id)) {
+            JOptionPane.showMessageDialog(frame, "User deleted successfully!");
+            loadUsersToTable();
+        } else {
+            JOptionPane.showMessageDialog(frame, "Error deleting user.");
         }
     }
 
@@ -63,26 +55,16 @@ public class AdminDashboard {
                 return false;
             }
         };
-        String url = "jdbc:sqlite:src/Database/jolikod.db";
-        String sql = "SELECT id, username, password FROM users";
-        try (Connection conn = DriverManager.getConnection(url);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password")
-                });
-            }
-            userTable.setModel(model);
-            userTable.getColumnModel().getColumn(0).setMinWidth(0);
-            userTable.getColumnModel().getColumn(0).setMaxWidth(0);
-            userTable.getColumnModel().getColumn(0).setWidth(0);
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(frame, "Database error: " + e.getMessage());
+        List<Object[]> users = dataManager.getAllUsers();
+        for (Object[] user : users) {
+            model.addRow(user);
         }
+
+        userTable.setModel(model);
+        userTable.getColumnModel().getColumn(0).setMinWidth(0);
+        userTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        userTable.getColumnModel().getColumn(0).setWidth(0);
     }
 
     public void loadFoodToTable() {
@@ -94,47 +76,22 @@ public class AdminDashboard {
             }
         };
 
-        String url = "jdbc:sqlite:src/Database/jolikod.db";
-        String sql = "SELECT id, category, name, price FROM foods";
-
-        try (Connection conn = DriverManager.getConnection(url);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("category"),
-                        rs.getString("name"),
-                        "₱" + rs.getDouble("price")
-                });
-            }
-            foodTable.setModel(model);
-            foodTable.getColumnModel().getColumn(0).setMinWidth(0);
-            foodTable.getColumnModel().getColumn(0).setMaxWidth(0);
-            foodTable.getColumnModel().getColumn(0).setWidth(0);
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(frame, "Database error: " + e.getMessage());
+        List<Object[]> foods = dataManager.getAllFoods();
+        for (Object[] food : foods) {
+            model.addRow(food);
         }
+
+        foodTable.setModel(model);
+        foodTable.getColumnModel().getColumn(0).setMinWidth(0);
+        foodTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        foodTable.getColumnModel().getColumn(0).setWidth(0);
     }
 
     private void updateFoodPriceInDatabase(int id, double newPrice) {
-        String url = "jdbc:sqlite:src/Database/jolikod.db";
-        String sql = "UPDATE foods SET price = ? WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(url);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setDouble(1, newPrice);
-            pstmt.setInt(2, id);
-
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows > 0) {
-                JOptionPane.showMessageDialog(frame, "Price updated successfully!");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(frame, "Database error: " + ex.getMessage());
+        if (dataManager.updateFoodPrice(id, newPrice)) {
+            JOptionPane.showMessageDialog(frame, "Price updated successfully!");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Database error while updating price.");
         }
     }
 
@@ -147,6 +104,7 @@ public class AdminDashboard {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         CardLayout cl = (CardLayout) contentPanel.getLayout();
+        dataManager = new DataManager();
 
         logoutButton.addActionListener(new ActionListener() {
             @Override
@@ -231,14 +189,17 @@ public class AdminDashboard {
                     String foodName = foodTable.getValueAt(selectedRow, 2).toString();
                     String currentPrice = foodTable.getValueAt(selectedRow, 3).toString();
 
+                    String cleanCurrentPrice = currentPrice.replace("₱", "").trim();
+
                     String newPriceInput = JOptionPane.showInputDialog(frame,
                             "Editing Price for: " + foodName,
-                            currentPrice);
+                            cleanCurrentPrice);
 
                     if (newPriceInput != null && !newPriceInput.trim().isEmpty()) {
                         try {
-                            double newPrice = Double.parseDouble(newPriceInput);
+                            double newPrice = Double.parseDouble(newPriceInput.replaceAll("[^0-9.]", ""));
                             int foodId = Integer.parseInt(idValue.toString());
+
                             updateFoodPriceInDatabase(foodId, newPrice);
                             loadFoodToTable();
 

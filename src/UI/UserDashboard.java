@@ -10,11 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
+import Database.DataManager;
 
 public class UserDashboard {
 
@@ -114,6 +110,7 @@ public class UserDashboard {
     private JSpinner spinner20;
     private JButton addButton16;
     private JFrame frame;
+    private DataManager dataManager;
 
     //
 
@@ -141,33 +138,18 @@ public class UserDashboard {
     }
 
     public void addItemToTable(String itemName, int quantity) {
-        String url = "jdbc:sqlite:src/Database/jolikod.db";
+        double price = dataManager.getItemPrice(itemName);
 
-        try (Connection conn = DriverManager.getConnection(url)) {
+        if (price != -1.0) {
+            double total = price * quantity;
+            DefaultTableModel model = (DefaultTableModel) table1.getModel();
+            model.addRow(new Object[]{itemName, price, quantity, total});
 
-            String query = "SELECT price FROM foods WHERE name LIKE ?";
-            PreparedStatement pst = conn.prepareStatement(query);
-
-            pst.setString(1, "%" + itemName.trim() + "%");
-
-            ResultSet rs = pst.executeQuery();
-
-            if (rs.next()) {
-                double price = rs.getDouble("price");
-                double total = price * quantity;
-                DefaultTableModel model = (DefaultTableModel) table1.getModel();
-                model.addRow(new Object[]{itemName, price, quantity, total});
-
-                table1.revalidate();
-                table1.repaint();
-                updateCalculations();
-
-            } else {
-                JOptionPane.showMessageDialog(frame, "Item not found in database: " + itemName);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(frame, "Database Error: " + e.getMessage());
-            e.printStackTrace();
+            table1.revalidate();
+            table1.repaint();
+            updateCalculations();
+        } else {
+            JOptionPane.showMessageDialog(frame, "Item not found in database: " + itemName);
         }
     }
 
@@ -201,6 +183,7 @@ public class UserDashboard {
         frame.setContentPane(this.user);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
+        dataManager = new DataManager();
 
         JSpinner[] allSpinners = {
                 spinner1, spinner2, spinner3, spinner4, spinner5,
@@ -211,10 +194,8 @@ public class UserDashboard {
         };
 
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
-
         welcomeLabel.setText("Welcome, user");
         CardLayout cl = (CardLayout) panelDish.getLayout();
-
         DefaultTableModel model = new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0);
         table1.setModel(model);
 
@@ -223,7 +204,6 @@ public class UserDashboard {
                 ConfigurePositiveSpinner(s);
             }
         }
-
         for (JTextField f : currencyFields) {
             ConfigureCurrencyField(f);
         }
@@ -270,9 +250,7 @@ public class UserDashboard {
             }
         });
 
-
         // Main Dishes
-
         addButton2.addActionListener(e -> addItemToTable("Fried Chicken", (int) spinner1.getValue()));
         addButton3.addActionListener(e -> addItemToTable("1pc Fried Porkchop", (int) spinner2.getValue()));
         addButton4.addActionListener(e -> addItemToTable("4pc Chicken Nuggets", (int) spinner3.getValue()));
@@ -317,25 +295,27 @@ public class UserDashboard {
             try {
                 double total = 0;
                 if (textField3 instanceof JFormattedTextField) {
-                    total = ((Number) ((JFormattedTextField) textField3).getValue()).doubleValue();
+                    Object val = ((JFormattedTextField) textField3).getValue();
+                    total = (val instanceof Number) ? ((Number) val).doubleValue() : 0.0;
+                } else {
+                    total = Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
                 }
 
-                double cash = Double.parseDouble(textField4.getText());
+                double cash = Double.parseDouble(textField4.getText().trim());
 
                 if (cash >= total) {
                     double change = cash - total;
-                    ((JFormattedTextField) textField5).setValue(change);
-
+                    textField5.setText(String.format("%.2f", change));
                     JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%.2f", change));
-
                     ((DefaultTableModel) table1.getModel()).setRowCount(0);
                     updateCalculations();
                     textField4.setText("");
+                    textField5.setText("");
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Insufficient cash amount!");
+                    JOptionPane.showMessageDialog(frame, "Insufficient cash!");
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Please enter a valid payment amount.");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid number for cash.");
             }
         });
 
