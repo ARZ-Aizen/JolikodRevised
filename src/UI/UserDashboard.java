@@ -331,6 +331,7 @@ public class UserDashboard {
                     ((DefaultTableModel) table1.getModel()).setRowCount(0);
                     updateCalculations();
                     textField4.setText("");
+                    textField5.setText("");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Insufficient cash amount!");
                 }
