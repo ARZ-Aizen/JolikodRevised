@@ -11,6 +11,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
 import Database.DataManager;
+import Output.OrderReceipt;
 
 public class UserDashboard {
 
@@ -311,6 +312,7 @@ public class UserDashboard {
                     updateCalculations();
                     textField4.setText("");
                     textField5.setText("");
+                    new OrderReceipt();
                 } else {
                     JOptionPane.showMessageDialog(frame, "Insufficient cash!");
                 }
