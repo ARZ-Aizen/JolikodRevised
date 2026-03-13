@@ -6,7 +6,8 @@ public class OrderReceipt {
 
     private JPanel receiptPanel;
     private JButton btnprint;
-    private JTextArea receiptArea;
+    private JTable table1;
+    private JTextField textField1;
 
     public OrderReceipt() {
         JFrame frame = new JFrame("Receipt");

@@ -1535,9 +1535,9 @@
                                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
                                 </constraints>
                                 <properties>
-                                  <background color="-2631721"/>
+                                  <background color="-392448"/>
                                 </properties>
-                                <border type="line">
+                                <border type="none">
                                   <font size="16"/>
                                   <title-color color="-16777216"/>
                                 </border>
@@ -1545,7 +1545,9 @@
                                   <component id="8334d" class="javax.swing.JButton" binding="mainDishButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <background color="-339658"/>
                                       <font name="Eras Medium ITC" size="16"/>
+                                      <foreground color="-1"/>
                                       <preferredSize width="120" height="50"/>
                                       <text value="Main Dish"/>
                                     </properties>
@@ -1553,7 +1555,9 @@
                                   <component id="38400" class="javax.swing.JButton" binding="sideDishButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <background color="-339658"/>
                                       <font name="Eras Medium ITC" size="16"/>
+                                      <foreground color="-1"/>
                                       <preferredSize width="120" height="50"/>
                                       <text value="Side Dish"/>
                                     </properties>
@@ -1561,7 +1565,9 @@
                                   <component id="b56f0" class="javax.swing.JButton" binding="drinksButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <background color="-339658"/>
                                       <font name="Eras Medium ITC" size="16"/>
+                                      <foreground color="-1"/>
                                       <preferredSize width="120" height="50"/>
                                       <text value="Drinks"/>
                                     </properties>
@@ -1569,7 +1575,9 @@
                                   <component id="e9fae" class="javax.swing.JButton" binding="desertButton" default-binding="true">
                                     <constraints/>
                                     <properties>
+                                      <background color="-339658"/>
                                       <font name="Eras Medium ITC" size="16"/>
+                                      <foreground color="-1"/>
                                       <preferredSize width="120" height="50"/>
                                       <text value="Dessert"/>
                                     </properties>
@@ -1608,7 +1616,7 @@
                           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <background color="-1"/>
+                          <background color="-1317654"/>
                         </properties>
                         <border type="none"/>
                         <children>
@@ -1724,7 +1732,9 @@
                         <children>
                           <component id="78f61" class="javax.swing.JButton" binding="payButton" default-binding="true">
                             <constraints>
-                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="-1" height="40"/>
+                              </grid>
                             </constraints>
                             <properties>
                               <background color="-392448"/>
@@ -1735,7 +1745,9 @@
                           </component>
                           <component id="72661" class="javax.swing.JButton" binding="removeButton" default-binding="true">
                             <constraints>
-                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                                <preferred-size width="-1" height="40"/>
+                              </grid>
                             </constraints>
                             <properties>
                               <background color="-339658"/>
@@ -1750,7 +1762,9 @@
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <background color="-1317654"/>
+                        </properties>
                         <border type="none"/>
                         <children>
                           <component id="7f2b2" class="javax.swing.JTable" binding="table1" default-binding="true">
@@ -1773,6 +1787,7 @@
                   </grid>
                 </constraints>
                 <properties>
+                  <background color="-1317654"/>
                   <font name="Eras Demi ITC" size="16" style="0"/>
                   <text value="Logout"/>
                 </properties>
