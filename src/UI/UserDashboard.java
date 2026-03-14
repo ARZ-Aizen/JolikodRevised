@@ -142,10 +142,29 @@ public class UserDashboard {
         double price = dataManager.getItemPrice(itemName);
 
         if (price != -1.0) {
-            double total = price * quantity;
             DefaultTableModel model = (DefaultTableModel) table1.getModel();
-            model.addRow(new Object[]{itemName, price, quantity, total});
+            boolean itemExists = false;
 
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String existingItemName = (String) model.getValueAt(i, 0);
+
+                if (existingItemName.equals(itemName)) {
+                    int currentQty = (int) model.getValueAt(i, 2);
+                    int newQty = currentQty + quantity;
+                    double newTotal = price * newQty;
+
+                    model.setValueAt(newQty, i, 2);
+                    model.setValueAt(newTotal, i, 3);
+
+                    itemExists = true;
+                    break;
+                }
+            }
+
+            if (!itemExists) {
+                double total = price * quantity;
+                model.addRow(new Object[]{itemName, price, quantity, total});
+            }
             table1.revalidate();
             table1.repaint();
             updateCalculations();
@@ -197,7 +216,13 @@ public class UserDashboard {
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
         welcomeLabel.setText("Welcome, user");
         CardLayout cl = (CardLayout) panelDish.getLayout();
-        DefaultTableModel model = new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0);
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         table1.setModel(model);
 
         for (JSpinner s : allSpinners) {
@@ -307,12 +332,21 @@ public class UserDashboard {
                 if (cash >= total) {
                     double change = cash - total;
                     textField5.setText(String.format("%.2f", change));
+
+                    DefaultTableModel currentModel = (DefaultTableModel) table1.getModel();
+                    String sub = textField1.getText();
+                    String vat = textField2.getText();
+                    String totalVal = textField3.getText();
+                    String cashVal = textField4.getText();
+                    String changeVal = textField5.getText();
+
                     JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%.2f", change));
+                    new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal);
                     ((DefaultTableModel) table1.getModel()).setRowCount(0);
                     updateCalculations();
                     textField4.setText("");
                     textField5.setText("");
-                    new OrderReceipt();
+
                 } else {
                     JOptionPane.showMessageDialog(frame, "Insufficient cash!");
                 }
