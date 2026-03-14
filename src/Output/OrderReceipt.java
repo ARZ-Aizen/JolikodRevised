@@ -2,6 +2,8 @@ package Output;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class OrderReceipt {
 
@@ -13,10 +15,20 @@ public class OrderReceipt {
     private JTextField textField2;
     private JTextField textField5;
     private JTextField textField4;
+    private JLabel labelTime;
+    private JLabel labelDate;
 
     public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change) {
         JFrame frame = new JFrame("Receipt");
         frame.setContentPane(this.receiptPanel);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a"); // e.g., 02:30:05 PM
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMMM dd, yyyy"); // e.g., March 14, 2026
+
+        if (labelTime != null) labelTime.setText(now.format(timeFormat));
+        if (labelDate != null) labelDate.setText(now.format(dateFormat));
 
         DefaultTableModel receiptModel = new DefaultTableModel(new Object[]{"Item Name", "Qty", "Price"}, 0) {
             @Override

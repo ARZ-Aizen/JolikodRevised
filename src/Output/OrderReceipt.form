@@ -75,29 +75,29 @@
               </component>
               <component id="a7c59" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="2" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <font name="Arial" size="14" style="0"/>
                   <text value="Time:"/>
                 </properties>
               </component>
-              <component id="97541" class="javax.swing.JLabel">
+              <component id="97541" class="javax.swing.JLabel" binding="labelDate">
                 <constraints>
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <font name="Arial" size="14" style="0"/>
-                  <text value="Label"/>
+                  <text value=""/>
                 </properties>
               </component>
-              <component id="98a77" class="javax.swing.JLabel">
+              <component id="98a77" class="javax.swing.JLabel" binding="labelTime">
                 <constraints>
                   <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <font name="Arial" size="14" style="0"/>
-                  <text value="Label"/>
+                  <text value=""/>
                 </properties>
               </component>
               <grid id="a52c7" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
@@ -152,17 +152,6 @@
                   </component>
                 </children>
               </grid>
-              <component id="7611f" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                    <preferred-size width="118" height="16"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <font name="Arial" size="14" style="0"/>
-                  <text value="Date:"/>
-                </properties>
-              </component>
               <component id="7cd19" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -179,15 +168,6 @@
                 <properties>
                   <font name="Arial" size="14" style="0"/>
                   <text value="Cashier:"/>
-                </properties>
-              </component>
-              <component id="6a97a" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="3" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <font name="Arial" size="14" style="0"/>
-                  <text value="Label"/>
                 </properties>
               </component>
               <grid id="3fee8" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
