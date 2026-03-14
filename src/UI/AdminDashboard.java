@@ -33,6 +33,10 @@ public class AdminDashboard {
     private JScrollPane HisortyScroll;
     private JScrollPane FoodScroll;
     private JScrollPane UserScroll;
+    private JButton editReceiptButton;
+    private JPanel card4;
+    private JTable receiptTable;
+    private JButton editButton1;
     private JFrame frame;
     private DataManager dataManager;
 
@@ -65,6 +69,26 @@ public class AdminDashboard {
         userTable.getColumnModel().getColumn(0).setMinWidth(0);
         userTable.getColumnModel().getColumn(0).setMaxWidth(0);
         userTable.getColumnModel().getColumn(0).setWidth(0);
+    }
+
+    public void loadReceiptToTable() {
+        String[] columns = {"ID", "Branch Name", "Contact Number", "Email Address"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        List<Object[]> receipts = dataManager.getAllReceipts();
+        for (Object[] receipt : receipts) {
+            model.addRow(receipt);
+        }
+
+        receiptTable.setModel(model);
+
+        receiptTable.getColumnModel().getColumn(0).setMinWidth(0);
+        receiptTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        receiptTable.getColumnModel().getColumn(0).setWidth(0);
     }
 
     public void loadFoodToTable() {
@@ -134,6 +158,14 @@ public class AdminDashboard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cl.show(contentPanel, "panel3");
+            }
+        });
+
+        editReceiptButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cl.show(contentPanel, "panel4");
+                loadReceiptToTable();
             }
         });
 
@@ -209,6 +241,51 @@ public class AdminDashboard {
                     }
                 } else {
                     JOptionPane.showMessageDialog(frame, "Please select a food item from the table first.");
+                }
+            }
+        });
+
+        editButton1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = receiptTable.getSelectedRow();
+
+                if (selectedRow != -1) {
+                    int receiptId = Integer.parseInt(receiptTable.getValueAt(selectedRow, 0).toString());
+                    String currentPlace = receiptTable.getValueAt(selectedRow, 1).toString();
+                    String currentContact = receiptTable.getValueAt(selectedRow, 2).toString();
+                    String currentEmail = receiptTable.getValueAt(selectedRow, 3).toString();
+
+                    JTextField placeField = new JTextField(currentPlace);
+                    JTextField contactField = new JTextField(currentContact);
+                    JTextField emailField = new JTextField(currentEmail);
+
+                    Object[] message = {
+                            "Branch Name:", placeField,
+                            "Contact Number:", contactField,
+                            "Email Address:", emailField
+                    };
+
+                    int option = JOptionPane.showConfirmDialog(frame, message, "Edit Receipt Header", JOptionPane.OK_CANCEL_OPTION);
+
+                    if (option == JOptionPane.OK_OPTION) {
+                        String newPlace = placeField.getText().trim();
+                        String newContact = contactField.getText().trim();
+                        String newEmail = emailField.getText().trim();
+
+                        if (!newPlace.isEmpty() && !newContact.isEmpty() && !newEmail.isEmpty()) {
+                            if (dataManager.updateReceiptHeader(receiptId, newPlace, newContact, newEmail)) {
+                                JOptionPane.showMessageDialog(frame, "Receipt info updated successfully!");
+                                loadReceiptToTable();
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "Error: Could not update database. Ensure details are unique.");
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "All fields must be filled out.");
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please select a branch from the table first.");
                 }
             }
         });

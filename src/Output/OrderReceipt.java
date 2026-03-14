@@ -1,5 +1,7 @@
 package Output;
 
+import Database.DataManager;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.time.LocalDateTime;
@@ -18,6 +20,9 @@ public class OrderReceipt {
     private JLabel labelTime;
     private JLabel labelDate;
     private JLabel cashierLabel;
+    private JLabel labelAddress;
+    private JLabel labelContact;
+    private JLabel labelEmail;
 
     public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change, String userName) {
         JFrame frame = new JFrame("Receipt");
@@ -32,6 +37,15 @@ public class OrderReceipt {
         if (labelDate != null) labelDate.setText(now.format(dateFormat));
 
         this.cashierLabel.setText(userName);
+        DataManager manager = new DataManager();
+        java.util.List<Object[]> businessInfo = manager.getAllReceipts();
+
+        if (!businessInfo.isEmpty()) {
+            Object[] info = businessInfo.get(0);
+            labelAddress.setText(info[1].toString());
+            labelContact.setText("Contact no: " + info[2].toString());
+            labelEmail.setText("Email: " + info[3].toString());
+        }
 
         DefaultTableModel receiptModel = new DefaultTableModel(new Object[]{"Item Name", "Qty", "Price"}, 0) {
             @Override

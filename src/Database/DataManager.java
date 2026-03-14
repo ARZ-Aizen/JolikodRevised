@@ -133,4 +133,44 @@ public class DataManager {
             return false;
         }
     }
+
+    public List<Object[]> getAllReceipts() {
+        List<Object[]> list = new java.util.ArrayList<>();
+        String query = "SELECT id, place, contactNum, email FROM receipt";
+
+        try (Connection conn = DatabaseHelper.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                list.add(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("place"),
+                        rs.getString("contactNum"),
+                        rs.getString("email")
+                });
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching receipts: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public boolean updateReceiptHeader(int id, String place, String contact, String email) {
+        String sql = "UPDATE receipt SET place = ?, contactNum = ?, email = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseHelper.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, place);
+            pstmt.setString(2, contact);
+            pstmt.setString(3, email);
+            pstmt.setInt(4, id);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Update Error: " + e.getMessage());
+            return false;
+        }
+    }
 }
