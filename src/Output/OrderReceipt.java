@@ -17,8 +17,9 @@ public class OrderReceipt {
     private JTextField textField4;
     private JLabel labelTime;
     private JLabel labelDate;
+    private JLabel cashierLabel;
 
-    public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change) {
+    public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change, String userName) {
         JFrame frame = new JFrame("Receipt");
         frame.setContentPane(this.receiptPanel);
 
@@ -29,6 +30,8 @@ public class OrderReceipt {
 
         if (labelTime != null) labelTime.setText(now.format(timeFormat));
         if (labelDate != null) labelDate.setText(now.format(dateFormat));
+
+        this.cashierLabel.setText(userName);
 
         DefaultTableModel receiptModel = new DefaultTableModel(new Object[]{"Item Name", "Qty", "Price"}, 0) {
             @Override

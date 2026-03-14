@@ -152,13 +152,13 @@
                   </component>
                 </children>
               </grid>
-              <component id="7cd19" class="javax.swing.JLabel">
+              <component id="7cd19" class="javax.swing.JLabel" binding="cashierLabel">
                 <constraints>
                   <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <font name="Arial" size="14" style="0"/>
-                  <text value="Label"/>
+                  <text value=""/>
                 </properties>
               </component>
               <component id="ab4fb" class="javax.swing.JLabel">

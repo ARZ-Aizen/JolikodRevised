@@ -110,6 +110,7 @@ public class UserDashboard {
     private JSpinner spinner21;
     private JSpinner spinner20;
     private JButton addButton16;
+    private JLabel displayUser;
     private JFrame frame;
     private DataManager dataManager;
 
@@ -198,12 +199,13 @@ public class UserDashboard {
 
     //
 
-    public UserDashboard() {
+    public UserDashboard(String userName) {
         frame = new JFrame("Jolikod - User Dashboard");
         frame.setContentPane(this.user);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
         dataManager = new DataManager();
+
 
         JSpinner[] allSpinners = {
                 spinner1, spinner2, spinner3, spinner4, spinner5,
@@ -214,7 +216,7 @@ public class UserDashboard {
         };
 
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
-        welcomeLabel.setText("Welcome, user");
+        this.welcomeLabel.setText("Welcome, " + userName);
         CardLayout cl = (CardLayout) panelDish.getLayout();
         DefaultTableModel model = new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
             @Override
@@ -341,7 +343,7 @@ public class UserDashboard {
                     String changeVal = textField5.getText();
 
                     JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%.2f", change));
-                    new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal);
+                    new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal, userName);
                     ((DefaultTableModel) table1.getModel()).setRowCount(0);
                     updateCalculations();
                     textField4.setText("");

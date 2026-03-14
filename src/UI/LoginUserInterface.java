@@ -36,7 +36,8 @@ public class LoginUserInterface {
 
                 if (isAuthenticated) {
                     JOptionPane.showMessageDialog(panel1, "Welcome, " + user + "!");
-                    new UserDashboard();
+                    String userName = textField1.getText();
+                    new UserDashboard(userName);
                     frame.dispose();
                 } else {
                     JOptionPane.showMessageDialog(panel1, "Invalid Credentials", "Error", JOptionPane.ERROR_MESSAGE);
