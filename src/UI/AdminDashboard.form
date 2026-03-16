@@ -154,13 +154,27 @@
                             <properties/>
                             <border type="none"/>
                             <children>
+                              <component id="762d1" class="javax.swing.JButton" binding="addItemButton" default-binding="true">
+                                <constraints/>
+                                <properties>
+                                  <font name="Eras Medium ITC" size="16" style="0"/>
+                                  <text value="Add Item"/>
+                                </properties>
+                              </component>
+                              <component id="83d93" class="javax.swing.JButton" binding="removeItemButton" default-binding="true">
+                                <constraints/>
+                                <properties>
+                                  <font name="Eras Medium ITC" size="16" style="0"/>
+                                  <text value="Remove Item"/>
+                                </properties>
+                              </component>
                               <component id="d6393" class="javax.swing.JButton" binding="editButton" default-binding="true">
                                 <constraints/>
                                 <properties>
                                   <font name="Eras Medium ITC" size="16" style="0"/>
                                   <horizontalAlignment value="0"/>
                                   <maximumSize width="200" height="50"/>
-                                  <text value="Edit"/>
+                                  <text value="Edit Price"/>
                                 </properties>
                               </component>
                               <component id="9d4ae" class="javax.swing.JButton" binding="loadFoodToTable">
@@ -203,7 +217,7 @@
                         </properties>
                         <border type="none"/>
                         <children>
-                          <scrollpane id="13d3" binding="HisortyScroll">
+                          <scrollpane id="13d3" binding="HistoryScroll">
                             <constraints>
                               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>

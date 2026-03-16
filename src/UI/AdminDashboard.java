@@ -1,6 +1,7 @@
 package UI;
 
 import Database.DataManager;
+
 import java.awt.CardLayout;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -30,14 +31,17 @@ public class AdminDashboard {
     private JPanel OrderPanel;
     private JTable foodTable;
     private JTable HistoryTable;
-    private JScrollPane HisortyScroll;
+    private JScrollPane HistoryScroll;
     private JScrollPane FoodScroll;
     private JScrollPane UserScroll;
     private JButton editReceiptButton;
     private JPanel card4;
     private JTable receiptTable;
     private JButton editButton1;
+    private JButton removeItemButton;
+    private JButton addItemButton;
     private JFrame frame;
+    private JLabel foodImagePreview;
     private DataManager dataManager;
 
     //
@@ -48,6 +52,29 @@ public class AdminDashboard {
             loadUsersToTable();
         } else {
             JOptionPane.showMessageDialog(frame, "Error deleting user.");
+        }
+    }
+
+    private void updateFoodPriceInDatabase(int id, double newPrice) {
+        if (dataManager.updateFoodPrice(id, newPrice)) {
+            JOptionPane.showMessageDialog(frame, "Price updated successfully!");
+            loadFoodToTable();
+        } else {
+            JOptionPane.showMessageDialog(frame, "Database error while updating price.");
+        }
+    }
+
+    private void displayImage(JLabel label, String path) {
+        if (label == null) return;
+
+        try {
+            ImageIcon icon = new ImageIcon(path);
+            java.awt.Image img = icon.getImage().getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
+            label.setIcon(new ImageIcon(img));
+            label.setText("");
+        } catch (Exception e) {
+            label.setIcon(null);
+            label.setText("Image not found");
         }
     }
 
@@ -92,7 +119,7 @@ public class AdminDashboard {
     }
 
     public void loadFoodToTable() {
-        String[] columns = {"ID", "Category", "Name", "Price"};
+        String[] columns = {"ID", "Category", "Name", "Price", "Image Path"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -106,16 +133,20 @@ public class AdminDashboard {
         }
 
         foodTable.setModel(model);
+
         foodTable.getColumnModel().getColumn(0).setMinWidth(0);
         foodTable.getColumnModel().getColumn(0).setMaxWidth(0);
-        foodTable.getColumnModel().getColumn(0).setWidth(0);
+
+        foodTable.getColumnModel().getColumn(4).setMinWidth(0);
+        foodTable.getColumnModel().getColumn(4).setMaxWidth(0);
     }
 
-    private void updateFoodPriceInDatabase(int id, double newPrice) {
-        if (dataManager.updateFoodPrice(id, newPrice)) {
-            JOptionPane.showMessageDialog(frame, "Price updated successfully!");
+    private void deleteFoodFromDatabase(int id) {
+        if (dataManager.deleteFood(id)) {
+            JOptionPane.showMessageDialog(frame, "Item removed from menu.");
+            loadFoodToTable(); // Refresh the table to show it's gone
         } else {
-            JOptionPane.showMessageDialog(frame, "Database error while updating price.");
+            JOptionPane.showMessageDialog(frame, "Error: Could not delete the food item.");
         }
     }
 
@@ -184,9 +215,13 @@ public class AdminDashboard {
                 if (selectedRow != -1) {
                     Object idValue = userTable.getValueAt(selectedRow, 0);
                     int userId = Integer.parseInt(idValue.toString());
-                    int confirm = JOptionPane.showConfirmDialog(frame,
-                            "Are you sure you want to delete this user:?",
-                            "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+                    if (userId == 1) {
+                        JOptionPane.showMessageDialog(frame, "System Error: The Admin account cannot be deleted.", "Access Denied", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
                     if (confirm == JOptionPane.YES_OPTION) {
                         deleteUserFromDatabase(userId);
@@ -223,9 +258,7 @@ public class AdminDashboard {
 
                     String cleanCurrentPrice = currentPrice.replace("₱", "").trim();
 
-                    String newPriceInput = JOptionPane.showInputDialog(frame,
-                            "Editing Price for: " + foodName,
-                            cleanCurrentPrice);
+                    String newPriceInput = JOptionPane.showInputDialog(frame, "Editing Price for: " + foodName, cleanCurrentPrice);
 
                     if (newPriceInput != null && !newPriceInput.trim().isEmpty()) {
                         try {
@@ -260,11 +293,7 @@ public class AdminDashboard {
                     JTextField contactField = new JTextField(currentContact);
                     JTextField emailField = new JTextField(currentEmail);
 
-                    Object[] message = {
-                            "Branch Name:", placeField,
-                            "Contact Number:", contactField,
-                            "Email Address:", emailField
-                    };
+                    Object[] message = {"Branch Name:", placeField, "Contact Number:", contactField, "Email Address:", emailField};
 
                     int option = JOptionPane.showConfirmDialog(frame, message, "Edit Receipt Header", JOptionPane.OK_CANCEL_OPTION);
 
@@ -290,6 +319,46 @@ public class AdminDashboard {
             }
         });
 
+        addItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new CreateFood(AdminDashboard.this);
+            }
+        });
+
+        removeItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = foodTable.getSelectedRow();
+
+                if (selectedRow != -1) {
+                    Object idValue = foodTable.getValueAt(selectedRow, 0);
+                    int foodId = Integer.parseInt(idValue.toString());
+                    String foodName = foodTable.getValueAt(selectedRow, 2).toString();
+
+                    int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to remove '" + foodName + "' from the menu?", "Confirm Deletion", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        deleteFoodFromDatabase(foodId);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Please select a food item from the table first.");
+                }
+            }
+        });
+
+        foodTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = foodTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Object pathObj = foodTable.getValueAt(selectedRow, 4);
+                    if (pathObj != null) {
+                        String path = pathObj.toString();
+                        displayImage(foodImagePreview, path);
+                    }
+                }
+            }
+        });
         frame.setVisible(true);
     }
 }

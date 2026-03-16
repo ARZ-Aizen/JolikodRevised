@@ -3,9 +3,8 @@ package UI;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import Database.DataManager;
-import java.text.NumberFormat;
-import javax.swing.text.NumberFormatter;
 
 public class LoginUserInterface {
 
@@ -17,7 +16,7 @@ public class LoginUserInterface {
     private JFrame frame;
 
     public LoginUserInterface() {
-        frame = new JFrame("Jolikod");
+        frame = new JFrame("Jolikod - Login");
         frame.setResizable(false);
         frame.setContentPane(this.panel1);
         frame.setSize(500, 500);
@@ -32,37 +31,28 @@ public class LoginUserInterface {
                 String pass = new String(passwordField1.getPassword());
 
                 DataManager manager = new DataManager();
-                boolean isAuthenticated = manager.login(user, pass);
+                int userId = manager.login(user, pass);
 
-                if (isAuthenticated) {
+                if (userId != -1) {
                     JOptionPane.showMessageDialog(panel1, "Welcome, " + user + "!");
-                    String userName = textField1.getText();
-                    new UserDashboard(userName);
+
+                    if (userId == 1) {
+                        new AdminDashboard();
+                    } else {
+                        new UserDashboard(user);
+                    }
+
                     frame.dispose();
                 } else {
                     JOptionPane.showMessageDialog(panel1, "Invalid Credentials", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
-
-        AdminButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new AdminDashboard();
-                disposeCurrentFrame();
-            }
-        });
         frame.setVisible(true);
     }
 
-    private void disposeCurrentFrame() {
-        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(panel1);
-        if (currentFrame != null) {
-            currentFrame.dispose();
-        }
-    }
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginUserInterface());
     }
 }

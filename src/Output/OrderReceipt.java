@@ -25,7 +25,7 @@ public class OrderReceipt {
     private JLabel labelEmail;
 
     public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change, String userName) {
-        JFrame frame = new JFrame("Receipt");
+        JFrame frame = new JFrame("Jolikod - Receipt");
         frame.setContentPane(this.receiptPanel);
 
         LocalDateTime now = LocalDateTime.now();

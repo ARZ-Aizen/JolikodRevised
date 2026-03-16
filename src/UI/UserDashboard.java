@@ -5,114 +5,41 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
+
 import Database.DataManager;
 import Output.OrderReceipt;
+import Database.DataManager.FoodItem;
 
 public class UserDashboard {
 
     private JPanel user;
-    private JButton logoutButton;
+    private JPanel main;
+    private JPanel cardSide;
+    private JPanel orderSide;
+    private JPanel panelDish; // The CardLayout container
+    private JPanel allDish, mainDish, sideDish, drinkDish, dessertDish;
+    private JButton allButton, mainDishButton, sideDishButton, drinksButton, dessertButton, logoutButton;
+    private JTable cartTable;
+    private JScrollPane cartScroll;
+    private JTextField textField1, textField2, textField3, textField4, textField5;
+    private JButton payButton, removeButton;
     private JLabel welcomeLabel;
-    private JButton mainDishButton;
-    private JPanel panel1;
-    private JPanel panel2;
-    private JPanel panel3;
-    private JPanel panel4;
-    private JButton sideDishButton;
-    private JButton drinksButton;
-    private JButton desertButton;
-    private JPanel panelDish;
-    private JButton addButton2;
-    private JSpinner spinner1;
-    private JPanel id1;
-    private JPanel id2;
-    private JPanel id3;
-    private JPanel id4;
-    private JPanel id5;
-    private JPanel id6;
-    private JButton addButton3;
-    private JSpinner spinner2;
-    private JButton addButton4;
-    private JSpinner spinner3;
-    private JButton addButton5;
-    private JSpinner spinner4;
-    private JButton addButton6;
-    private JSpinner spinner5;
-    private JButton addButton7;
-    private JSpinner spinner6;
-    private JPanel id7;
-    private JButton addButton8;
-    private JSpinner spinner7;
-    private JTable table1;
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField3;
-    private JTextField textField4;
-    private JTextField textField5;
-    private JButton payButton;
-    private JButton removeButton;
-    private JButton addButton9;
-    private JSpinner spinner8;
-    private JPanel id8;
-    private JPanel id9;
-    private JPanel id10;
-    private JPanel id11;
-    private JPanel id12;
-    private JSpinner spinner9;
-    private JSpinner spinner10;
-    private JButton addButton11;
-    private JSpinner spinner11;
-    private JButton addButton12;
-    private JSpinner spinner12;
-    private JButton addButton13;
-    private JPanel id14;
-    private JPanel id13;
-    private JPanel id15;
-    private JPanel id16;
-    private JPanel id17;
-    private JPanel id18;
-    private JPanel id19;
-    private JButton addButton14;
-    private JButton addButton15;
-    private JButton addButton10;
-    private JButton addButton17;
-    private JButton addButton18;
-    private JButton addButton19;
-    private JButton addButton20;
-    private JSpinner spinner19;
-    private JSpinner spinner18;
-    private JSpinner spinner17;
-    private JSpinner spinner16;
-    private JSpinner spinner15;
-    private JSpinner spinner14;
-    private JSpinner spinner13;
-    private JPanel id20;
-    private JPanel id21;
-    private JPanel id22;
-    private JPanel id23;
-    private JPanel id24;
-    private JPanel id25;
-    private JButton addButton21;
-    private JButton addButton22;
-    private JButton addButton23;
-    private JButton addButton24;
-    private JButton addButton25;
-    private JButton addButton26;
-    private JSpinner spinner25;
-    private JSpinner spinner24;
-    private JSpinner spinner23;
-    private JSpinner spinner22;
-    private JSpinner spinner21;
-    private JSpinner spinner20;
-    private JButton addButton16;
-    private JLabel displayUser;
     private JFrame frame;
     private DataManager dataManager;
+    private JPanel panelButton;
+    private JPanel payRemove, panelSale;
+    private JScrollPane scrollAll;
+    private JScrollPane scrollMain;
+    private JScrollPane scrollSide;
+    private JScrollPane scrollDrink;
+    private JScrollPane scrollDessert;
+    ;
 
     //
 
@@ -133,17 +60,120 @@ public class UserDashboard {
         formatter.setAllowsInvalid(false);
 
         if (textField instanceof JFormattedTextField) {
-            ((JFormattedTextField) textField).setFormatterFactory(
-                    new DefaultFormatterFactory(formatter)
-            );
+            ((JFormattedTextField) textField).setFormatterFactory(new DefaultFormatterFactory(formatter));
         }
+    }
+
+    private JPanel createFoodCard(String name, double price, String imgPath) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        card.setBackground(Color.WHITE);
+        card.setPreferredSize(new Dimension(180, 220));
+
+        JLabel imgLabel = new JLabel();
+        imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        try {
+            java.net.URL imgURL = getClass().getResource("/" + imgPath);
+
+            if (imgURL != null) {
+                ImageIcon icon = new ImageIcon(imgURL);
+                Image img = icon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH);
+                imgLabel.setIcon(new ImageIcon(img));
+                imgLabel.setText("");
+            } else {
+                imgLabel.setText("[ Missing ]");
+                System.out.println("Cannot find: /" + imgPath);
+            }
+        } catch (Exception e) {
+            imgLabel.setText("Error");
+        }
+
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel priceLabel = new JLabel("₱" + String.format("%.2f", price));
+        priceLabel.setForeground(Color.RED);
+        priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JSpinner qtySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
+        qtySpinner.setMaximumSize(new Dimension(60, 25));
+        qtySpinner.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton addBtn = new JButton("Add");
+        addBtn.setBackground(new Color(255, 204, 0));
+        addBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addBtn.addActionListener(e -> {
+            int qty = (int) qtySpinner.getValue();
+            addItemToTable(name, qty);
+        });
+
+        card.add(Box.createVerticalStrut(10));
+        card.add(imgLabel);
+        card.add(nameLabel);
+        card.add(priceLabel);
+        card.add(Box.createVerticalStrut(5));
+        card.add(qtySpinner);
+        card.add(Box.createVerticalStrut(5));
+        card.add(addBtn);
+        card.add(Box.createVerticalStrut(10));
+
+        return card;
+    }
+
+    private void loadDynamicMenu() {
+        // 1. Clear everything
+        allDish.removeAll();
+        mainDish.removeAll();
+        sideDish.removeAll();
+        drinkDish.removeAll();
+        dessertDish.removeAll();
+
+        // 2. Set Layouts
+        allDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
+        mainDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
+        sideDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
+        drinkDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
+        dessertDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
+
+        List<FoodItem> items = dataManager.getMenuData();
+
+        for (FoodItem item : items) {
+            // --- KEY FIX ---
+            // Create one card SPECIFICALLY for the "All" view
+            JPanel cardForAll = createFoodCard(item.name, item.price, item.imagePath);
+            allDish.add(cardForAll);
+
+            // Create a SECOND card for the specific category view
+            JPanel cardForCategory = createFoodCard(item.name, item.price, item.imagePath);
+
+            if (item.category.equalsIgnoreCase("Main Dish")) {
+                mainDish.add(cardForCategory);
+            } else if (item.category.equalsIgnoreCase("Side Dish")) {
+                sideDish.add(cardForCategory);
+            } else if (item.category.equalsIgnoreCase("Drinks")) {
+                drinkDish.add(cardForCategory);
+            } else if (item.category.equalsIgnoreCase("Dessert")) {
+                dessertDish.add(cardForCategory);
+            }
+        }
+
+        allDish.revalidate();
+        mainDish.revalidate();
+        sideDish.revalidate();
+        drinkDish.revalidate();
+        dessertDish.revalidate();
+
+        panelDish.revalidate();
+        panelDish.repaint();
     }
 
     public void addItemToTable(String itemName, int quantity) {
         double price = dataManager.getItemPrice(itemName);
 
         if (price != -1.0) {
-            DefaultTableModel model = (DefaultTableModel) table1.getModel();
+            DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
             boolean itemExists = false;
 
             for (int i = 0; i < model.getRowCount(); i++) {
@@ -166,8 +196,8 @@ public class UserDashboard {
                 double total = price * quantity;
                 model.addRow(new Object[]{itemName, price, quantity, total});
             }
-            table1.revalidate();
-            table1.repaint();
+            cartTable.revalidate();
+            cartTable.repaint();
             updateCalculations();
         } else {
             JOptionPane.showMessageDialog(frame, "Item not found in database: " + itemName);
@@ -176,7 +206,7 @@ public class UserDashboard {
 
     public void updateCalculations() {
         double subtotal = 0;
-        DefaultTableModel model = (DefaultTableModel) table1.getModel();
+        DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
 
         for (int i = 0; i < model.getRowCount(); i++) {
             subtotal += Double.parseDouble(model.getValueAt(i, 3).toString());
@@ -205,15 +235,14 @@ public class UserDashboard {
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
         dataManager = new DataManager();
+        loadDynamicMenu();
+        int scrollSpeed = 20;
+        scrollAll.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
+        scrollMain.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
+        scrollSide.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
+        scrollDrink.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
+        scrollDessert.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
 
-
-        JSpinner[] allSpinners = {
-                spinner1, spinner2, spinner3, spinner4, spinner5,
-                spinner6, spinner7, spinner8, spinner9, spinner10,
-                spinner11, spinner12, spinner13, spinner14, spinner15,
-                spinner16, spinner17, spinner18, spinner19, spinner20,
-                spinner21, spinner22, spinner23, spinner24, spinner25
-        };
 
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
         this.welcomeLabel.setText("Welcome, " + userName);
@@ -225,13 +254,9 @@ public class UserDashboard {
             }
         };
 
-        table1.setModel(model);
+        cartTable.setModel(model);
 
-        for (JSpinner s : allSpinners) {
-            if (s != null) {
-                ConfigurePositiveSpinner(s);
-            }
-        }
+
         for (JTextField f : currencyFields) {
             ConfigureCurrencyField(f);
         }
@@ -246,25 +271,31 @@ public class UserDashboard {
         mainDishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card1");
+                cl.show(panelDish, "Card2");
             }
         });
         sideDishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card2");
+                cl.show(panelDish, "Card3");
             }
         });
         drinksButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card3");
+                cl.show(panelDish, "Card4");
             }
         });
-        desertButton.addActionListener(new ActionListener() {
+        dessertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card4");
+                cl.show(panelDish, "Card5");
+            }
+        });
+        allButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cl.show(panelDish, "Card1");
             }
         });
 
@@ -278,40 +309,11 @@ public class UserDashboard {
             }
         });
 
-        // Main Dishes
-        addButton2.addActionListener(e -> addItemToTable("Fried Chicken", (int) spinner1.getValue()));
-        addButton3.addActionListener(e -> addItemToTable("1pc Fried Porkchop", (int) spinner2.getValue()));
-        addButton4.addActionListener(e -> addItemToTable("4pc Chicken Nuggets", (int) spinner3.getValue()));
-        addButton5.addActionListener(e -> addItemToTable("6pc Chicken Nuggets", (int) spinner4.getValue()));
-        addButton6.addActionListener(e -> addItemToTable("Joli Spaghetti", (int) spinner5.getValue()));
-        addButton7.addActionListener(e -> addItemToTable("Joli Pancit", (int) spinner6.getValue()));
-        addButton8.addActionListener(e -> addItemToTable("Joli Palabok", (int) spinner7.getValue()));
-        addButton9.addActionListener(e -> addItemToTable("Burger Steak", (int) spinner8.getValue()));
-        // Side Dishes
-        addButton10.addActionListener(e -> addItemToTable("Joli Hotdog", (int) spinner9.getValue()));
-        addButton11.addActionListener(e -> addItemToTable("Joli Burger", (int) spinner10.getValue()));
-        addButton12.addActionListener(e -> addItemToTable("Chicken Sandwich", (int) spinner11.getValue()));
-        addButton13.addActionListener(e -> addItemToTable("Cheesy Joli Hotdog", (int) spinner12.getValue()));
-        // Drinks
-        addButton14.addActionListener(e -> addItemToTable("Pineapple Juice", (int) spinner13.getValue()));
-        addButton15.addActionListener(e -> addItemToTable("Iced Tea", (int) spinner14.getValue()));
-        addButton16.addActionListener(e -> addItemToTable("Coke Float", (int) spinner15.getValue()));
-        addButton17.addActionListener(e -> addItemToTable("Coke", (int) spinner16.getValue()));
-        addButton18.addActionListener(e -> addItemToTable("Sprite", (int) spinner17.getValue()));
-        addButton19.addActionListener(e -> addItemToTable("Gulaman", (int) spinner18.getValue()));
-        addButton20.addActionListener(e -> addItemToTable("Orange Juice", (int) spinner19.getValue()));
-        // Desert
-        addButton21.addActionListener(e -> addItemToTable("Halo-Halo", (int) spinner20.getValue()));
-        addButton22.addActionListener(e -> addItemToTable("Buko Pandan", (int) spinner21.getValue()));
-        addButton23.addActionListener(e -> addItemToTable("Leche Flan", (int) spinner22.getValue()));
-        addButton24.addActionListener(e -> addItemToTable("Peach Mango Pie", (int) spinner23.getValue()));
-        addButton25.addActionListener(e -> addItemToTable("Choco Sundae", (int) spinner24.getValue()));
-        addButton26.addActionListener(e -> addItemToTable("Strawberry Sundae", (int) spinner25.getValue()));
 
         removeButton.addActionListener(e -> {
-            int selectedRow = table1.getSelectedRow();
+            int selectedRow = cartTable.getSelectedRow();
             if (selectedRow != -1) {
-                ((DefaultTableModel) table1.getModel()).removeRow(selectedRow);
+                ((DefaultTableModel) cartTable.getModel()).removeRow(selectedRow);
                 updateCalculations();
             } else {
                 JOptionPane.showMessageDialog(frame, "Please select an item to remove.");
@@ -335,7 +337,7 @@ public class UserDashboard {
                     double change = cash - total;
                     textField5.setText(String.format("%.2f", change));
 
-                    DefaultTableModel currentModel = (DefaultTableModel) table1.getModel();
+                    DefaultTableModel currentModel = (DefaultTableModel) cartTable.getModel();
                     String sub = textField1.getText();
                     String vat = textField2.getText();
                     String totalVal = textField3.getText();
@@ -344,7 +346,7 @@ public class UserDashboard {
 
                     JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%.2f", change));
                     new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal, userName);
-                    ((DefaultTableModel) table1.getModel()).setRowCount(0);
+                    ((DefaultTableModel) cartTable.getModel()).setRowCount(0);
                     updateCalculations();
                     textField4.setText("");
                     textField5.setText("");
@@ -356,9 +358,7 @@ public class UserDashboard {
                 JOptionPane.showMessageDialog(frame, "Please enter a valid number for cash.");
             }
         });
-
         frame.setVisible(true);
-
     }
 
 }
