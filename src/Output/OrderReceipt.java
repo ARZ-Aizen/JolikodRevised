@@ -75,7 +75,8 @@ public class OrderReceipt {
         frame.setVisible(true);
 
         btnprint.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "Printing Receipt...");
+            JOptionPane.showMessageDialog(frame, "Transaction Saved");
+            frame.dispose();
         });
     }
 }
