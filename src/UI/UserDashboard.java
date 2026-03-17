@@ -234,8 +234,10 @@ public class UserDashboard {
         frame.setContentPane(this.user);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
+
         dataManager = new DataManager();
         loadDynamicMenu();
+
         int scrollSpeed = 20;
         scrollAll.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
         scrollMain.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
@@ -243,10 +245,10 @@ public class UserDashboard {
         scrollDrink.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
         scrollDessert.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
 
-
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
         this.welcomeLabel.setText("Welcome, " + userName);
         CardLayout cl = (CardLayout) panelDish.getLayout();
+
         DefaultTableModel model = new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -255,7 +257,6 @@ public class UserDashboard {
         };
 
         cartTable.setModel(model);
-
 
         for (JTextField f : currencyFields) {
             ConfigureCurrencyField(f);
@@ -306,6 +307,27 @@ public class UserDashboard {
                 if (!Character.isDigit(c)) {
                     e.consume();
                 }
+
+                textField4.addKeyListener(new KeyAdapter() {
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        String raw = textField4.getText().replaceAll(",", "");
+
+                        if (raw.isEmpty()) return;
+
+                        try {
+                            long value = Long.parseLong(raw);
+
+                            java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
+                            String formatted = formatter.format(value);
+
+                            textField4.setText(formatted);
+
+                        } catch (NumberFormatException ex) {
+                        }
+                    }
+                });
+
             }
         });
 
@@ -331,21 +353,26 @@ public class UserDashboard {
                     total = Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
                 }
 
-                double cash = Double.parseDouble(textField4.getText().trim());
+                String rawCash = textField4.getText().replaceAll(",", "").trim();
+                double cash = Double.parseDouble(rawCash);
 
                 if (cash >= total) {
                     double change = cash - total;
-                    textField5.setText(String.format("%.2f", change));
+
+                    textField5.setText(String.format("%,.2f", change));
 
                     DefaultTableModel currentModel = (DefaultTableModel) cartTable.getModel();
                     String sub = textField1.getText();
                     String vat = textField2.getText();
                     String totalVal = textField3.getText();
+
                     String cashVal = textField4.getText();
                     String changeVal = textField5.getText();
 
-                    JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%.2f", change));
+                    JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%,.2f", change));
+
                     new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal, userName);
+
                     ((DefaultTableModel) cartTable.getModel()).setRowCount(0);
                     updateCalculations();
                     textField4.setText("");
@@ -358,6 +385,7 @@ public class UserDashboard {
                 JOptionPane.showMessageDialog(frame, "Please enter a valid number for cash.");
             }
         });
+
         frame.setVisible(true);
     }
 
