@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -354,35 +355,49 @@ public class UserDashboard {
                 }
 
                 String rawCash = textField4.getText().replaceAll(",", "").trim();
+                if (rawCash.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please enter cash amount.");
+                    return;
+                }
                 double cash = Double.parseDouble(rawCash);
 
                 if (cash >= total) {
                     double change = cash - total;
-
                     textField5.setText(String.format("%,.2f", change));
 
-                    DefaultTableModel currentModel = (DefaultTableModel) cartTable.getModel();
-                    String sub = textField1.getText();
-                    String vat = textField2.getText();
-                    String totalVal = textField3.getText();
+                    String projectPath = System.getProperty("user.dir");
+                    String folderPath = projectPath + File.separator + "receipts";
+                    String fileName = "Receipt_" + System.currentTimeMillis() + ".pdf";
+                    String fullPath = folderPath + File.separator + fileName;
 
-                    String cashVal = textField4.getText();
-                    String changeVal = textField5.getText();
+                    boolean saved = dataManager.saveTransaction(total, userName, cash, change, fullPath);
 
-                    JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%,.2f", change));
+                    if (saved) {
+                        DefaultTableModel currentModel = (DefaultTableModel) cartTable.getModel();
+                        String sub = textField1.getText();
+                        String vat = textField2.getText();
+                        String totalVal = textField3.getText();
+                        String cashVal = textField4.getText();
+                        String changeVal = textField5.getText();
 
-                    new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal, userName);
+                        JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%,.2f", change));
 
-                    ((DefaultTableModel) cartTable.getModel()).setRowCount(0);
-                    updateCalculations();
-                    textField4.setText("");
-                    textField5.setText("");
+                        new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal, userName, fullPath);
+
+                        ((DefaultTableModel) cartTable.getModel()).setRowCount(0);
+                        updateCalculations();
+                        textField4.setText("");
+                        textField5.setText("");
+
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Database Error: Ensure 'receipt_path' column exists in transactions table.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
 
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Insufficient cash!");
+                    JOptionPane.showMessageDialog(frame, "Insufficient cash! Need ₱" + String.format("%.2f", total - cash) + " more.");
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Please enter a valid number for cash.");
+                JOptionPane.showMessageDialog(frame, "Invalid input. Please enter numbers only.");
             }
         });
 

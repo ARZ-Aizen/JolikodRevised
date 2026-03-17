@@ -205,4 +205,67 @@ public class DataManager {
             this.imagePath = imagePath;
         }
     }
+    public boolean saveTransaction(double total, String cashier, double paid, double change, String receiptPath) {
+        String sql = "INSERT INTO transactions(total_price, cashier_name, amount_paid, cash_change, receipt_path) VALUES(?,?,?,?,?)";
+        try (Connection conn = DatabaseHelper.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDouble(1, total);
+            pstmt.setString(2, cashier);
+            pstmt.setDouble(3, paid);
+            pstmt.setDouble(4, change);
+            pstmt.setString(5, receiptPath);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<Object[]> getAllTransactions() {
+        List<Object[]> history = new ArrayList<>();
+        String sql = "SELECT strftime('%Y-%m-%d %H:%M', order_date), total_price, cashier_name, amount_paid, cash_change, receipt_path FROM transactions ORDER BY id DESC";
+
+        try (Connection conn = DatabaseHelper.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                history.add(new Object[]{
+                        rs.getString(1),
+                        "₱" + String.format("%.2f", rs.getDouble(2)),
+                        rs.getString(3),
+                        "₱" + String.format("%.2f", rs.getDouble(4)),
+                        "₱" + String.format("%.2f", rs.getDouble(5)),
+                        rs.getString(6)
+                });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return history;
+    }
+
+    public double getTodaysTotalSales() {
+        String sql = "SELECT SUM(total_price) FROM transactions WHERE date(order_date) = date('now')";
+        try (Connection conn = DatabaseHelper.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) return rs.getDouble(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0.0;
+    }
+
+    public double getLifetimeTotalSales() {
+        String sql = "SELECT SUM(total_price) FROM transactions";
+        try (Connection conn = DatabaseHelper.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) return rs.getDouble(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0.0;
+    }
+
+    public int getTodaysOrderCount() {
+        String sql = "SELECT COUNT(*) FROM transactions WHERE date(order_date) = date('now')";
+        try (Connection conn = DatabaseHelper.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+
+
+
 }

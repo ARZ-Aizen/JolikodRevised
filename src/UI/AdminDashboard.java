@@ -2,25 +2,20 @@ package UI;
 
 import Database.DataManager;
 
-import java.awt.CardLayout;
+import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class AdminDashboard {
 
     private JPanel admin;
-    private JButton logoutButton;
-    private JButton createUsersButton;
-    private JButton createFoodButton;
-    private JButton transactionHistoryButton;
+    private JButton logoutButton; private JButton createUsersButton; private JButton createFoodButton; private JButton transactionHistoryButton;
     private JPanel contentPanel;
-    private JPanel LeftPanel;
-    private JPanel card1;
-    private JPanel card2;
-    private JPanel card3;
+    private JPanel LeftPanel; private JPanel card1; private JPanel card2; private JPanel card3;
     private JButton createUserButton;
     private JPanel btnCreateUser;
     private JTable userTable;
@@ -30,8 +25,6 @@ public class AdminDashboard {
     private JButton loadFoodToTable;
     private JPanel OrderPanel;
     private JTable foodTable;
-    private JTable HistoryTable;
-    private JScrollPane HistoryScroll;
     private JScrollPane FoodScroll;
     private JScrollPane UserScroll;
     private JButton editReceiptButton;
@@ -40,9 +33,15 @@ public class AdminDashboard {
     private JButton editButton1;
     private JButton removeItemButton;
     private JButton addItemButton;
+    private JTable tableHistory;
+    private JScrollPane historyScroll; private JScrollPane salesScroll;
+    private JPanel historyPanel; private JPanel historyNamePanel; private JPanel HistoryMain;
+    private JPanel salesPanel; private JPanel salesLabelPanel; private JPanel salesMain;
     private JFrame frame;
     private JLabel foodImagePreview;
     private DataManager dataManager;
+    private JLabel totalSalesValue; private JLabel totalOrdersValue;
+    private JLabel lifetimeSalesValue; private JLabel avgOrderValue;
 
     //
 
@@ -144,10 +143,100 @@ public class AdminDashboard {
     private void deleteFoodFromDatabase(int id) {
         if (dataManager.deleteFood(id)) {
             JOptionPane.showMessageDialog(frame, "Item removed from menu.");
-            loadFoodToTable(); // Refresh the table to show it's gone
+            loadFoodToTable();
         } else {
             JOptionPane.showMessageDialog(frame, "Error: Could not delete the food item.");
         }
+    }
+
+
+    public void loadTransactionHistory() {
+        String[] columns = {"Date", "Total Price", "Cashier", "Amount Paid", "Change", "Receipt Path"};
+
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        model.setRowCount(0);
+
+        List<Object[]> history = dataManager.getAllTransactions();
+        for (Object[] row : history) {
+            model.addRow(row);
+        }
+
+        tableHistory.setModel(model);
+
+        if (tableHistory.getColumnCount() > 5) {
+            tableHistory.getColumnModel().getColumn(5).setMinWidth(0);
+            tableHistory.getColumnModel().getColumn(5).setMaxWidth(0);
+            tableHistory.getColumnModel().getColumn(5).setWidth(0);
+        }
+    }
+
+    public void setupSalesCards() {
+        salesPanel.removeAll();
+        salesPanel.setLayout(new GridLayout(1, 4, 15, 0));
+        salesPanel.setBackground(new Color(245, 245, 245));
+
+        JPanel dailyCard = createStatCard("TODAY'S SALES", Color.decode("#e67e22")); // Orange
+        totalSalesValue = (JLabel) dailyCard.getClientProperty("valueLabel");
+
+        JPanel lifeCard = createStatCard("LIFETIME SALES", Color.decode("#27ae60")); // Green
+        lifetimeSalesValue = (JLabel) lifeCard.getClientProperty("valueLabel");
+
+        JPanel ordersCard = createStatCard("TODAY'S ORDERS", Color.decode("#2980b9")); // Blue
+        totalOrdersValue = (JLabel) ordersCard.getClientProperty("valueLabel");
+
+        JPanel avgCard = createStatCard("AVG. ORDER", Color.decode("#8e44ad")); // Purple
+        avgOrderValue = (JLabel) avgCard.getClientProperty("valueLabel");
+
+        salesPanel.add(dailyCard);
+        salesPanel.add(lifeCard);
+        salesPanel.add(ordersCard);
+        salesPanel.add(avgCard);
+
+        salesPanel.revalidate();
+        salesPanel.repaint();
+    }
+
+    private JPanel createStatCard(String title, Color accentColor) {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                BorderFactory.createEmptyBorder(15, 20, 15, 20)
+        ));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        titleLabel.setForeground(Color.GRAY);
+
+        JLabel valueLabel = new JLabel("₱ 0.00");
+        valueLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        valueLabel.setForeground(accentColor);
+
+        card.add(titleLabel, BorderLayout.NORTH);
+        card.add(valueLabel, BorderLayout.CENTER);
+
+        card.putClientProperty("valueLabel", valueLabel);
+
+        return card;
+    }
+
+    public void refreshSalesSummary() {
+        double todayTotal = dataManager.getTodaysTotalSales();
+        double lifeTotal = dataManager.getLifetimeTotalSales();
+        int todayCount = dataManager.getTodaysOrderCount();
+
+        double average = (todayCount > 0) ? (todayTotal / todayCount) : 0.0;
+
+        totalSalesValue.setText("₱ " + String.format("%,.2f", todayTotal));
+        lifetimeSalesValue.setText("₱ " + String.format("%,.2f", lifeTotal));
+        totalOrdersValue.setText(String.valueOf(todayCount));
+        avgOrderValue.setText("₱ " + String.format("%,.2f", average));
     }
 
     //
@@ -189,6 +278,12 @@ public class AdminDashboard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cl.show(contentPanel, "panel3");
+                if (totalSalesValue == null) {
+                    setupSalesCards();
+                }
+
+                loadTransactionHistory();
+                refreshSalesSummary();
             }
         });
 
@@ -343,6 +438,33 @@ public class AdminDashboard {
                     }
                 } else {
                     JOptionPane.showMessageDialog(frame, "Please select a food item from the table first.");
+                }
+            }
+        });
+
+        tableHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int row = tableHistory.getSelectedRow();
+                    if (row != -1) {
+                        String path = tableHistory.getValueAt(row, 5).toString();
+
+                        try {
+                            File pdfFile = new File(path);
+                            if (pdfFile.exists()) {
+                                if (Desktop.isDesktopSupported()) {
+                                    Desktop.getDesktop().open(pdfFile);
+                                } else {
+                                    JOptionPane.showMessageDialog(frame, "Desktop not supported");
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "File not found: " + path);
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(frame, "Error opening PDF: " + ex.getMessage());
+                        }
+                    }
                 }
             }
         });

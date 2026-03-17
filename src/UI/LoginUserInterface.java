@@ -51,14 +51,14 @@ public class LoginUserInterface {
         eyelabel.setOpaque(true);
 
         try {
-            URL imgUrl = getClass().getResource("/resources/eyelabel.png");
+            URL imgUrl = getClass().getResource("/eyelabel.png");
             if (imgUrl != null) {
                 ImageIcon originalIcon = new ImageIcon(imgUrl);
                 Image scaled = originalIcon.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH);
                 eyelabel.setIcon(new ImageIcon(scaled));
                 eyelabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
             } else {
-                System.out.println("Image not found at /resources/eyelabel.png");
+
             }
         } catch (Exception e) {
             e.printStackTrace();

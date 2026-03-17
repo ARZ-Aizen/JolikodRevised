@@ -1,45 +1,75 @@
 package Output;
 
 import Database.DataManager;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.awt.*;
+import java.io.File;
+import java.io.FileOutputStream;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfTemplate;
+import com.itextpdf.text.pdf.PdfWriter;
 
 public class OrderReceipt {
 
     private JPanel receiptPanel;
     private JButton btnprint;
     private JTable table1;
-    private JTextField textField3;
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField5;
-    private JTextField textField4;
-    private JLabel labelTime;
-    private JLabel labelDate;
-    private JLabel cashierLabel;
-    private JLabel labelAddress;
-    private JLabel labelContact;
-    private JLabel labelEmail;
+    private JTextField textField3, textField1, textField2, textField5, textField4;
+    private JLabel labelTime, labelDate, cashierLabel, labelAddress, labelContact, labelEmail;
 
-    public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change, String userName) {
+    private DataManager dataManager = new DataManager();
+
+    public void exportToPDF(JPanel panel, String path) {
+        try {
+            File file = new File(path);
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            Rectangle pagesize = new Rectangle(panel.getWidth(), panel.getHeight());
+            Document document = new Document(pagesize);
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(path));
+
+            document.open();
+
+            // 3. Map the JPanel "Graphics" to the PDF "Graphics"
+            PdfContentByte cb = writer.getDirectContent();
+            PdfTemplate tp = cb.createTemplate(panel.getWidth(), panel.getHeight());
+            Graphics2D g2 = tp.createGraphics(panel.getWidth(), panel.getHeight());
+
+            panel.print(g2); // Captures the UI
+            g2.dispose();
+
+            cb.addTemplate(tp, 0, 0);
+            document.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "PDF Error: " + e.getMessage());
+        }
+    }
+
+    public OrderReceipt(DefaultTableModel orderModel, String sub, String vat, String total, String cash, String change, String userName, String fullPath) {
         JFrame frame = new JFrame("Jolikod - Receipt");
         frame.setContentPane(this.receiptPanel);
 
+        // Date and Time Logic
         LocalDateTime now = LocalDateTime.now();
-
-        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a"); // e.g., 02:30:05 PM
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMMM dd, yyyy"); // e.g., March 14, 2026
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
         if (labelTime != null) labelTime.setText(now.format(timeFormat));
         if (labelDate != null) labelDate.setText(now.format(dateFormat));
-
         this.cashierLabel.setText(userName);
-        DataManager manager = new DataManager();
-        java.util.List<Object[]> businessInfo = manager.getAllReceipts();
 
+        java.util.List<Object[]> businessInfo = dataManager.getAllReceipts();
         if (!businessInfo.isEmpty()) {
             Object[] info = businessInfo.get(0);
             labelAddress.setText(info[1].toString());
@@ -47,36 +77,34 @@ public class OrderReceipt {
             labelEmail.setText("Email: " + info[3].toString());
         }
 
-        DefaultTableModel receiptModel = new DefaultTableModel(new Object[]{"Item Name", "Qty", "Price"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
+        DefaultTableModel receiptModel = new DefaultTableModel(new Object[]{"Item Name", "Qty", "Price"}, 0);
         for (int i = 0; i < orderModel.getRowCount(); i++) {
-            String name = orderModel.getValueAt(i, 0).toString();
-            String qty = orderModel.getValueAt(i, 2).toString();
-            String price = orderModel.getValueAt(i, 3).toString();
-            receiptModel.addRow(new Object[]{name, qty, price});
+            receiptModel.addRow(new Object[]{
+                    orderModel.getValueAt(i, 0),
+                    orderModel.getValueAt(i, 2),
+                    orderModel.getValueAt(i, 3)
+            });
         }
         table1.setModel(receiptModel);
+
         textField1.setText(sub);
         textField2.setText(vat);
         textField3.setText(total);
         textField4.setText(cash);
         textField5.setText(change);
 
-
-        frame.setSize(400, 600);
+        frame.setSize(400, 900);
         frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setVisible(true);
+
+
 
         btnprint.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "Transaction Saved");
+            exportToPDF(receiptPanel, fullPath);
+
+            JOptionPane.showMessageDialog(frame, "PDF Receipt Saved to /receipts folder!");
             frame.dispose();
         });
+
+        frame.setVisible(true);
     }
 }
