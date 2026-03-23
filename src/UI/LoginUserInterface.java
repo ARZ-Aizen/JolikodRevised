@@ -1,13 +1,12 @@
 package UI;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-import java.awt.Color;
-import javax.swing.BorderFactory;
-
 
 import Database.DataManager;
 
@@ -20,7 +19,6 @@ public class LoginUserInterface {
     private JPanel passwordWraapper;
     private JLabel eyelabel;
     private JPanel userWrapper;
-    private JLabel emptylabel;
     private JFrame frame;
 
     public LoginUserInterface() {
@@ -31,83 +29,89 @@ public class LoginUserInterface {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        passwordWraapper.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        passwordWraapper.setBackground(Color.BLACK);
+        URL iconURL = getClass().getResource("/iconImage.png");
 
-        passwordField1.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-        passwordField1.setBackground(Color.WHITE);
-
-        userWrapper.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        userWrapper.setBackground(Color.BLACK);
-
-        textField1.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-        textField1.setBackground(Color.WHITE);
-
-        emptylabel.setBackground(Color.WHITE);
-        emptylabel.setOpaque(true);
-
-        eyelabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
-        eyelabel.setBackground(Color.WHITE);
-        eyelabel.setOpaque(true);
-
-        try {
-            URL imgUrl = getClass().getResource("/eyelabel.png");
-            if (imgUrl != null) {
-                ImageIcon originalIcon = new ImageIcon(imgUrl);
-                Image scaled = originalIcon.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH);
-                eyelabel.setIcon(new ImageIcon(scaled));
-                eyelabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            } else {
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (iconURL != null) {
+            ImageIcon logo = new ImageIcon(iconURL);
+            frame.setIconImage(logo.getImage());
         }
 
-        eyelabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            private boolean isHidden = true;
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (isHidden) {
-                    passwordField1.setEchoChar((char) 0);
-                    isHidden = false;
-                } else {
-                    passwordField1.setEchoChar('•');
-                    isHidden = true;
+
+        passwordWraapper.setOpaque(false);
+        userWrapper.setOpaque(false);
+
+        textField1.putClientProperty("JComponent.outline", null);
+        passwordField1.putClientProperty("JComponent.outline", null);
+
+        loginButton.putClientProperty("JButton.buttonType", "roundRect");
+        textField1.putClientProperty("JTextField.padding", new Insets(0, 10, 0, 0));
+        passwordField1.putClientProperty("JTextField.padding", new Insets(0, 10, 0, 0));
+
+        textField1.setBackground(Color.WHITE);
+        passwordField1.setBackground(Color.WHITE);
+
+        textField1.putClientProperty("JTextField.placeholderText", "Enter your username");
+        passwordField1.putClientProperty("JTextField.placeholderText", "Enter your password");
+
+        if (eyelabel != null) {
+            try {
+                URL imgUrl = getClass().getResource("/eyelabel.png");
+                if (imgUrl != null) {
+                    ImageIcon icon = new ImageIcon(imgUrl);
+                    Image scaled = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+                    eyelabel.setIcon(new ImageIcon(scaled));
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            passwordField1.putClientProperty("JTextField.trailingComponent", eyelabel);
+
+            eyelabel.setText("");
+            eyelabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            eyelabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
+
+            eyelabel.addMouseListener(new java.awt.event.MouseAdapter() {
+                private boolean isHidden = true;
+
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    isHidden = !isHidden;
+                    passwordField1.setEchoChar(isHidden ? '•' : (char) 0);
+                }
+            });
+        }
+
+        loginButton.addActionListener(e -> {
+            String user = textField1.getText();
+            String pass = new String(passwordField1.getPassword());
+            DataManager manager = new DataManager();
+            int userId = manager.login(user, pass);
+
+            if (userId != -1) {
+                JOptionPane.showMessageDialog(panel1, "Welcome, " + user + "!");
+                if (userId == 1) new AdminDashboard();
+                else new UserDashboard(user);
+                frame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(panel1, "Invalid Credentials", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String user = textField1.getText();
-                String pass = new String(passwordField1.getPassword());
-
-                DataManager manager = new DataManager();
-                int userId = manager.login(user, pass);
-
-                if (userId != -1) {
-                    JOptionPane.showMessageDialog(panel1, "Welcome, " + user + "!");
-
-                    if (userId == 1) {
-                        new AdminDashboard();
-                    } else {
-                        new UserDashboard(user);
-                    }
-
-                    frame.dispose();
-                } else {
-                    JOptionPane.showMessageDialog(panel1, "Invalid Credentials", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
         frame.setVisible(true);
     }
 
-
     public static void main(String[] args) {
+        try {
+            com.formdev.flatlaf.FlatLightLaf.setup();
+            UIManager.put("Button.arc", 999);
+            UIManager.put("Component.arc", 15);
+            UIManager.put("TextComponent.arc", 15);
+            UIManager.put("ScrollBar.thumbArc", 999);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SwingUtilities.invokeLater(() -> new LoginUserInterface());
     }
+
 }

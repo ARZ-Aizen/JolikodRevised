@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
@@ -37,6 +38,7 @@ public class AdminDashboard {
     private JScrollPane historyScroll; private JScrollPane salesScroll;
     private JPanel historyPanel; private JPanel historyNamePanel; private JPanel HistoryMain;
     private JPanel salesPanel; private JPanel salesLabelPanel; private JPanel salesMain;
+    private JLabel AdminLabel;
     private JFrame frame;
     private JLabel foodImagePreview;
     private DataManager dataManager;
@@ -241,14 +243,32 @@ public class AdminDashboard {
 
     //
 
+    public static Font loadCustomFont(float size) {
+        try {
+            InputStream is = AdminDashboard.class.getResourceAsStream("/logo.otf");
+
+            if (is == null) {
+                System.err.println("Could not find logo.otf in resources folder!");
+                return new Font("SansSerif", Font.PLAIN, (int)size);
+            }
+
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            return font.deriveFont(size);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Font("SansSerif", Font.PLAIN, (int)size);
+        }
+    }
+
     public AdminDashboard() {
         frame = new JFrame("Jolikod - Admin Dashboard");
         frame.setContentPane(this.admin);
-        frame.setSize(1200, 800);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         CardLayout cl = (CardLayout) contentPanel.getLayout();
         dataManager = new DataManager();
+
 
         logoutButton.addActionListener(new ActionListener() {
             @Override
@@ -482,5 +502,11 @@ public class AdminDashboard {
             }
         });
         frame.setVisible(true);
+    }
+
+    private void createUIComponents() {
+        AdminLabel = new JLabel();
+        AdminLabel.setFont(loadCustomFont(42f));
+        AdminLabel.setForeground(Color.decode("#FAD041"));
     }
 }
