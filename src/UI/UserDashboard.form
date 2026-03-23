@@ -52,7 +52,7 @@
                   <grid id="4fc94" binding="panelButton" layout-manager="FlowLayout" hgap="10" vgap="12" flow-align="0">
                     <constraints border-constraint="North"/>
                     <properties>
-                      <background color="-339903"/>
+                      <background color="-1052694"/>
                       <font name="Inter" style="0"/>
                     </properties>
                     <border type="none"/>
@@ -124,7 +124,7 @@
                           <grid id="ec19f" binding="allDish" layout-manager="BorderLayout" hgap="0" vgap="0">
                             <constraints/>
                             <properties>
-                              <background color="-1"/>
+                              <background color="-526086"/>
                               <font name="Inter" style="0"/>
                             </properties>
                             <border type="none"/>

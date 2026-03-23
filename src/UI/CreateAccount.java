@@ -4,6 +4,7 @@ import Database.DataManager;
 import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
+import java.net.URL;
 
 public class CreateAccount {
 
@@ -25,6 +26,13 @@ public class CreateAccount {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
+
+        URL iconURL = getClass().getResource("/iconImage.png");
+
+        if (iconURL != null) {
+            ImageIcon logo = new ImageIcon(iconURL);
+            frame.setIconImage(logo.getImage());
+        }
 
         createUserButton.addActionListener(e -> {
             String user = newUsername.getText().trim();

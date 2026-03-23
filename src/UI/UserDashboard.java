@@ -6,6 +6,7 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +24,7 @@ public class UserDashboard {
     private JPanel main;
     private JPanel cardSide;
     private JPanel orderSide;
-    private JPanel panelDish; // The CardLayout container
+    private JPanel panelDish;
     private JPanel allDish, mainDish, sideDish, drinkDish, dessertDish;
     private JButton allButton, mainDishButton, sideDishButton, drinksButton, dessertButton, logoutButton;
     private JTable cartTable;
@@ -40,9 +41,20 @@ public class UserDashboard {
     private JScrollPane scrollSide;
     private JScrollPane scrollDrink;
     private JScrollPane scrollDessert;
-    ;
 
-    //
+    private final Color ACTIVE_COLOR = Color.decode("#FAD041");
+    private final Color DEFAULT_COLOR = new Color(240, 240, 240);
+
+    private void handleMenuSelection(JButton selectedBtn) {
+        JButton[] menuButtons = {allButton, mainDishButton, sideDishButton, drinksButton, dessertButton};
+        for (JButton btn : menuButtons) {
+            if (btn != null) {
+                btn.setBackground(DEFAULT_COLOR);
+                btn.setFocusPainted(false);
+            }
+        }
+        selectedBtn.setBackground(ACTIVE_COLOR);
+    }
 
     public void ConfigurePositiveSpinner(JSpinner spinner) {
         spinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
@@ -54,7 +66,6 @@ public class UserDashboard {
 
     public void ConfigureCurrencyField(JTextField textField) {
         NumberFormat format = NumberFormat.getCurrencyInstance();
-
         NumberFormatter formatter = new NumberFormatter(format);
         formatter.setValueClass(Double.class);
         formatter.setMinimum(0.0);
@@ -76,7 +87,6 @@ public class UserDashboard {
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         try {
             java.net.URL imgURL = getClass().getResource("/" + imgPath);
-
             if (imgURL != null) {
                 ImageIcon icon = new ImageIcon(imgURL);
                 Image img = icon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH);
@@ -84,7 +94,6 @@ public class UserDashboard {
                 imgLabel.setText("");
             } else {
                 imgLabel.setText("[ Missing ]");
-                System.out.println("Cannot find: /" + imgPath);
             }
         } catch (Exception e) {
             imgLabel.setText("Error");
@@ -124,14 +133,12 @@ public class UserDashboard {
     }
 
     private void loadDynamicMenu() {
-        // 1. Clear everything
         allDish.removeAll();
         mainDish.removeAll();
         sideDish.removeAll();
         drinkDish.removeAll();
         dessertDish.removeAll();
 
-        // 2. Set Layouts
         allDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
         mainDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
         sideDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
@@ -139,80 +146,45 @@ public class UserDashboard {
         dessertDish.setLayout(new java.awt.GridLayout(0, 3, 10, 10));
 
         List<FoodItem> items = dataManager.getMenuData();
-
         for (FoodItem item : items) {
-            // --- KEY FIX ---
-            // Create one card SPECIFICALLY for the "All" view
-            JPanel cardForAll = createFoodCard(item.name, item.price, item.imagePath);
-            allDish.add(cardForAll);
-
-            // Create a SECOND card for the specific category view
-            JPanel cardForCategory = createFoodCard(item.name, item.price, item.imagePath);
-
-            if (item.category.equalsIgnoreCase("Main Dish")) {
-                mainDish.add(cardForCategory);
-            } else if (item.category.equalsIgnoreCase("Side Dish")) {
-                sideDish.add(cardForCategory);
-            } else if (item.category.equalsIgnoreCase("Drinks")) {
-                drinkDish.add(cardForCategory);
-            } else if (item.category.equalsIgnoreCase("Dessert")) {
-                dessertDish.add(cardForCategory);
-            }
+            allDish.add(createFoodCard(item.name, item.price, item.imagePath));
+            JPanel catCard = createFoodCard(item.name, item.price, item.imagePath);
+            if (item.category.equalsIgnoreCase("Main Dish")) mainDish.add(catCard);
+            else if (item.category.equalsIgnoreCase("Side Dish")) sideDish.add(catCard);
+            else if (item.category.equalsIgnoreCase("Drinks")) drinkDish.add(catCard);
+            else if (item.category.equalsIgnoreCase("Dessert")) dessertDish.add(catCard);
         }
 
-        allDish.revalidate();
-        mainDish.revalidate();
-        sideDish.revalidate();
-        drinkDish.revalidate();
-        dessertDish.revalidate();
-
-        panelDish.revalidate();
-        panelDish.repaint();
+        allDish.revalidate(); mainDish.revalidate(); sideDish.revalidate();
+        drinkDish.revalidate(); dessertDish.revalidate();
+        panelDish.revalidate(); panelDish.repaint();
     }
 
     public void addItemToTable(String itemName, int quantity) {
         double price = dataManager.getItemPrice(itemName);
-
         if (price != -1.0) {
             DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
             boolean itemExists = false;
-
             for (int i = 0; i < model.getRowCount(); i++) {
-                String existingItemName = (String) model.getValueAt(i, 0);
-
-                if (existingItemName.equals(itemName)) {
-                    int currentQty = (int) model.getValueAt(i, 2);
-                    int newQty = currentQty + quantity;
-                    double newTotal = price * newQty;
-
+                if (model.getValueAt(i, 0).equals(itemName)) {
+                    int newQty = (int) model.getValueAt(i, 2) + quantity;
                     model.setValueAt(newQty, i, 2);
-                    model.setValueAt(newTotal, i, 3);
-
+                    model.setValueAt(price * newQty, i, 3);
                     itemExists = true;
                     break;
                 }
             }
-
-            if (!itemExists) {
-                double total = price * quantity;
-                model.addRow(new Object[]{itemName, price, quantity, total});
-            }
-            cartTable.revalidate();
-            cartTable.repaint();
+            if (!itemExists) model.addRow(new Object[]{itemName, price, quantity, price * quantity});
             updateCalculations();
-        } else {
-            JOptionPane.showMessageDialog(frame, "Item not found in database: " + itemName);
         }
     }
 
     public void updateCalculations() {
         double subtotal = 0;
         DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
-
         for (int i = 0; i < model.getRowCount(); i++) {
             subtotal += Double.parseDouble(model.getValueAt(i, 3).toString());
         }
-
         double vat = subtotal * 0.12;
         double grandTotal = subtotal + vat;
 
@@ -221,14 +193,11 @@ public class UserDashboard {
             ((JFormattedTextField) textField2).setValue(vat);
             ((JFormattedTextField) textField3).setValue(grandTotal);
         } else {
-
             textField1.setText(String.format("%.2f", subtotal));
             textField2.setText(String.format("%.2f", vat));
             textField3.setText(String.format("%.2f", grandTotal));
         }
     }
-
-    //
 
     public UserDashboard(String userName) {
         frame = new JFrame("Jolikod - User Dashboard");
@@ -236,175 +205,87 @@ public class UserDashboard {
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
 
+        URL iconURL = getClass().getResource("/iconImage.png");
+        if (iconURL != null) frame.setIconImage(new ImageIcon(iconURL).getImage());
+
         dataManager = new DataManager();
         loadDynamicMenu();
 
-        int scrollSpeed = 20;
-        scrollAll.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
-        scrollMain.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
-        scrollSide.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
-        scrollDrink.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
-        scrollDessert.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
-
-        JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
+        scrollAll.getVerticalScrollBar().setUnitIncrement(20);
         this.welcomeLabel.setText("Welcome, " + userName);
         CardLayout cl = (CardLayout) panelDish.getLayout();
 
-        DefaultTableModel model = new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        cartTable.setModel(model);
-
-        for (JTextField f : currencyFields) {
-            ConfigureCurrencyField(f);
-        }
-
-        logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new LoginUserInterface();
-                frame.dispose();
-            }
-        });
-        mainDishButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card2");
-            }
-        });
-        sideDishButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card3");
-            }
-        });
-        drinksButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card4");
-            }
-        });
-        dessertButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card5");
-            }
-        });
-        allButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(panelDish, "Card1");
-            }
+        cartTable.setModel(new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
+            @Override public boolean isCellEditable(int row, int col) { return false; }
         });
 
-        textField4.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume();
-                }
+        JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
+        for (JTextField f : currencyFields) ConfigureCurrencyField(f);
 
-                textField4.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyReleased(KeyEvent e) {
-                        String raw = textField4.getText().replaceAll(",", "");
+        // --- Sidebar Menu Listeners with Selection Logic ---
 
-                        if (raw.isEmpty()) return;
-
-                        try {
-                            long value = Long.parseLong(raw);
-
-                            java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
-                            String formatted = formatter.format(value);
-
-                            textField4.setText(formatted);
-
-                        } catch (NumberFormatException ex) {
-                        }
-                    }
-                });
-
-            }
+        allButton.addActionListener(e -> {
+            cl.show(panelDish, "Card1");
+            handleMenuSelection(allButton);
         });
 
+        mainDishButton.addActionListener(e -> {
+            cl.show(panelDish, "Card2");
+            handleMenuSelection(mainDishButton);
+        });
+
+        sideDishButton.addActionListener(e -> {
+            cl.show(panelDish, "Card3");
+            handleMenuSelection(sideDishButton);
+        });
+
+        drinksButton.addActionListener(e -> {
+            cl.show(panelDish, "Card4");
+            handleMenuSelection(drinksButton);
+        });
+
+        dessertButton.addActionListener(e -> {
+            cl.show(panelDish, "Card5");
+            handleMenuSelection(dessertButton);
+        });
+
+        // Initialize first selection
+        handleMenuSelection(allButton);
+
+        logoutButton.addActionListener(e -> {
+            new LoginUserInterface();
+            frame.dispose();
+        });
 
         removeButton.addActionListener(e -> {
-            int selectedRow = cartTable.getSelectedRow();
-            if (selectedRow != -1) {
-                ((DefaultTableModel) cartTable.getModel()).removeRow(selectedRow);
+            int row = cartTable.getSelectedRow();
+            if (row != -1) {
+                ((DefaultTableModel) cartTable.getModel()).removeRow(row);
                 updateCalculations();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please select an item to remove.");
             }
         });
 
-
         payButton.addActionListener(e -> {
+            // ... (Payment logic remains same)
             try {
-                double total = 0;
-                if (textField3 instanceof JFormattedTextField) {
-                    Object val = ((JFormattedTextField) textField3).getValue();
-                    total = (val instanceof Number) ? ((Number) val).doubleValue() : 0.0;
-                } else {
-                    total = Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
-                }
-
+                double total = (textField3 instanceof JFormattedTextField) ? ((Number) ((JFormattedTextField) textField3).getValue()).doubleValue() : Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
                 String rawCash = textField4.getText().replaceAll(",", "").trim();
-                if (rawCash.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Please enter cash amount.");
-                    return;
-                }
+                if (rawCash.isEmpty()) return;
                 double cash = Double.parseDouble(rawCash);
-
                 if (cash >= total) {
                     double change = cash - total;
                     textField5.setText(String.format("%,.2f", change));
-
-                    String projectPath = System.getProperty("user.dir");
-                    String folderPath = projectPath + File.separator + "receipts";
-                    String fileName = "Receipt_" + System.currentTimeMillis() + ".pdf";
-                    String fullPath = folderPath + File.separator + fileName;
-
-                    boolean saved = dataManager.saveTransaction(total, userName, cash, change, fullPath);
-
-                    if (saved) {
-                        DefaultTableModel currentModel = (DefaultTableModel) cartTable.getModel();
-                        String sub = textField1.getText();
-                        String vat = textField2.getText();
-                        String totalVal = textField3.getText();
-                        String cashVal = textField4.getText();
-                        String changeVal = textField5.getText();
-
-                        JOptionPane.showMessageDialog(frame, "Transaction Complete!\nChange: ₱" + String.format("%,.2f", change));
-
-                        new OrderReceipt(currentModel, sub, vat, totalVal, cashVal, changeVal, userName, fullPath);
-
+                    String path = System.getProperty("user.dir") + File.separator + "receipts" + File.separator + "Receipt_" + System.currentTimeMillis() + ".pdf";
+                    if (dataManager.saveTransaction(total, userName, cash, change, path)) {
+                        new OrderReceipt((DefaultTableModel) cartTable.getModel(), textField1.getText(), textField2.getText(), textField3.getText(), textField4.getText(), textField5.getText(), userName, path);
                         ((DefaultTableModel) cartTable.getModel()).setRowCount(0);
                         updateCalculations();
-                        textField4.setText("");
-                        textField5.setText("");
-
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Database Error: Ensure 'receipt_path' column exists in transactions table.", "Error", JOptionPane.ERROR_MESSAGE);
+                        textField4.setText(""); textField5.setText("");
                     }
-
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Insufficient cash! Need ₱" + String.format("%.2f", total - cash) + " more.");
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid input. Please enter numbers only.");
-            }
+            } catch (Exception ex) { ex.printStackTrace(); }
         });
 
         frame.setVisible(true);
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }

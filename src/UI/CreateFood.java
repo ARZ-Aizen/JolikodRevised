@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.URL;
 
 public class CreateFood {
     private JPanel mainPanel;
@@ -33,6 +34,13 @@ public class CreateFood {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        URL iconURL = getClass().getResource("/iconImage.png");
+
+        if (iconURL != null) {
+            ImageIcon logo = new ImageIcon(iconURL);
+            frame.setIconImage(logo.getImage());
+        }
 
         browseButton.addActionListener(new ActionListener() {
             @Override

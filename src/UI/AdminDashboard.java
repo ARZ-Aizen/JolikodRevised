@@ -8,15 +8,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 public class AdminDashboard {
 
     private JPanel admin;
-    private JButton logoutButton; private JButton createUsersButton; private JButton createFoodButton; private JButton transactionHistoryButton;
+    private JButton logoutButton;
+    private JButton createUsersButton;
+    private JButton createFoodButton;
+    private JButton transactionHistoryButton;
+    private JButton editReceiptButton;
     private JPanel contentPanel;
-    private JPanel LeftPanel; private JPanel card1; private JPanel card2; private JPanel card3;
+    private JPanel LeftPanel;
+    private JPanel card1;
+    private JPanel card2;
+    private JPanel card3;
     private JButton createUserButton;
     private JPanel btnCreateUser;
     private JTable userTable;
@@ -28,24 +37,58 @@ public class AdminDashboard {
     private JTable foodTable;
     private JScrollPane FoodScroll;
     private JScrollPane UserScroll;
-    private JButton editReceiptButton;
     private JPanel card4;
     private JTable receiptTable;
     private JButton editButton1;
     private JButton removeItemButton;
     private JButton addItemButton;
     private JTable tableHistory;
-    private JScrollPane historyScroll; private JScrollPane salesScroll;
-    private JPanel historyPanel; private JPanel historyNamePanel; private JPanel HistoryMain;
-    private JPanel salesPanel; private JPanel salesLabelPanel; private JPanel salesMain;
+    private JScrollPane historyScroll;
+    private JScrollPane salesScroll;
+    private JPanel historyPanel;
+    private JPanel historyNamePanel;
+    private JPanel HistoryMain;
+    private JPanel salesPanel;
+    private JPanel salesLabelPanel;
+    private JPanel salesMain;
     private JLabel AdminLabel;
     private JFrame frame;
     private JLabel foodImagePreview;
     private DataManager dataManager;
-    private JLabel totalSalesValue; private JLabel totalOrdersValue;
-    private JLabel lifetimeSalesValue; private JLabel avgOrderValue;
+    private JLabel totalSalesValue;
+    private JLabel totalOrdersValue;
+    private JLabel lifetimeSalesValue;
+    private JLabel avgOrderValue;
 
-    //
+    // Defined Colors
+    private final Color ACTIVE_COLOR = Color.decode("#FAD041");
+    private final Color DEFAULT_COLOR = Color.WHITE;
+
+    private void styleTable(JTable table) {
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Inter", Font.PLAIN, 18));
+        header.setPreferredSize(new Dimension(header.getWidth(), 35));
+
+        table.setRowHeight(30);
+        table.setFont(new Font("Inter", Font.PLAIN, 16));
+        table.setGridColor(new Color(230, 230, 230));
+    }
+
+    /**
+     * Resets all sidebar buttons to default and highlights the selected one.
+     */
+    private void handleButtonColor(JButton activeBtn) {
+        // List of all sidebar buttons to reset
+        JButton[] sideButtons = {createUsersButton, editReceiptButton, createFoodButton, transactionHistoryButton};
+
+        for (JButton btn : sideButtons) {
+            if (btn != null) {
+                btn.setBackground(DEFAULT_COLOR);
+                btn.setFocusPainted(false); // Keeps UI clean
+            }
+        }
+        activeBtn.setBackground(ACTIVE_COLOR);
+    }
 
     private void deleteUserFromDatabase(int id) {
         if (dataManager.deleteUser(id)) {
@@ -67,7 +110,6 @@ public class AdminDashboard {
 
     private void displayImage(JLabel label, String path) {
         if (label == null) return;
-
         try {
             ImageIcon icon = new ImageIcon(path);
             java.awt.Image img = icon.getImage().getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH);
@@ -83,17 +125,14 @@ public class AdminDashboard {
         String[] columns = {"ID", "Username", "Password"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         List<Object[]> users = dataManager.getAllUsers();
-        for (Object[] user : users) {
-            model.addRow(user);
-        }
+        for (Object[] user : users) { model.addRow(user); }
 
         userTable.setModel(model);
+        styleTable(userTable);
         userTable.getColumnModel().getColumn(0).setMinWidth(0);
         userTable.getColumnModel().getColumn(0).setMaxWidth(0);
         userTable.getColumnModel().getColumn(0).setWidth(0);
@@ -103,17 +142,13 @@ public class AdminDashboard {
         String[] columns = {"ID", "Branch Name", "Contact Number", "Email Address"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
         List<Object[]> receipts = dataManager.getAllReceipts();
-        for (Object[] receipt : receipts) {
-            model.addRow(receipt);
-        }
+        for (Object[] receipt : receipts) { model.addRow(receipt); }
 
         receiptTable.setModel(model);
-
+        styleTable(receiptTable);
         receiptTable.getColumnModel().getColumn(0).setMinWidth(0);
         receiptTable.getColumnModel().getColumn(0).setMaxWidth(0);
         receiptTable.getColumnModel().getColumn(0).setWidth(0);
@@ -123,21 +158,16 @@ public class AdminDashboard {
         String[] columns = {"ID", "Category", "Name", "Price", "Image Path"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         List<Object[]> foods = dataManager.getAllFoods();
-        for (Object[] food : foods) {
-            model.addRow(food);
-        }
+        for (Object[] food : foods) { model.addRow(food); }
 
         foodTable.setModel(model);
-
+        styleTable(foodTable);
         foodTable.getColumnModel().getColumn(0).setMinWidth(0);
         foodTable.getColumnModel().getColumn(0).setMaxWidth(0);
-
         foodTable.getColumnModel().getColumn(4).setMinWidth(0);
         foodTable.getColumnModel().getColumn(4).setMaxWidth(0);
     }
@@ -151,25 +181,17 @@ public class AdminDashboard {
         }
     }
 
-
     public void loadTransactionHistory() {
         String[] columns = {"Date", "Total Price", "Cashier", "Amount Paid", "Change", "Receipt Path"};
-
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
-        model.setRowCount(0);
-
         List<Object[]> history = dataManager.getAllTransactions();
-        for (Object[] row : history) {
-            model.addRow(row);
-        }
+        for (Object[] row : history) { model.addRow(row); }
 
         tableHistory.setModel(model);
-
+        styleTable(tableHistory);
         if (tableHistory.getColumnCount() > 5) {
             tableHistory.getColumnModel().getColumn(5).setMinWidth(0);
             tableHistory.getColumnModel().getColumn(5).setMaxWidth(0);
@@ -182,49 +204,39 @@ public class AdminDashboard {
         salesPanel.setLayout(new GridLayout(1, 4, 15, 0));
         salesPanel.setBackground(new Color(245, 245, 245));
 
-        JPanel dailyCard = createStatCard("TODAY'S SALES", Color.decode("#e67e22")); // Orange
+        JPanel dailyCard = createStatCard("TODAY'S SALES", Color.decode("#e67e22"));
         totalSalesValue = (JLabel) dailyCard.getClientProperty("valueLabel");
-
-        JPanel lifeCard = createStatCard("LIFETIME SALES", Color.decode("#27ae60")); // Green
+        JPanel lifeCard = createStatCard("LIFETIME SALES", Color.decode("#27ae60"));
         lifetimeSalesValue = (JLabel) lifeCard.getClientProperty("valueLabel");
-
-        JPanel ordersCard = createStatCard("TODAY'S ORDERS", Color.decode("#2980b9")); // Blue
+        JPanel ordersCard = createStatCard("TODAY'S ORDERS", Color.decode("#2980b9"));
         totalOrdersValue = (JLabel) ordersCard.getClientProperty("valueLabel");
-
-        JPanel avgCard = createStatCard("AVG. ORDER", Color.decode("#8e44ad")); // Purple
+        JPanel avgCard = createStatCard("AVG. ORDER", Color.decode("#8e44ad"));
         avgOrderValue = (JLabel) avgCard.getClientProperty("valueLabel");
 
         salesPanel.add(dailyCard);
         salesPanel.add(lifeCard);
         salesPanel.add(ordersCard);
         salesPanel.add(avgCard);
-
         salesPanel.revalidate();
         salesPanel.repaint();
     }
 
     private JPanel createStatCard(String title, Color accentColor) {
-        JPanel card = new JPanel();
-        card.setLayout(new BorderLayout());
+        JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
-
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         titleLabel.setForeground(Color.GRAY);
-
         JLabel valueLabel = new JLabel("₱ 0.00");
         valueLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         valueLabel.setForeground(accentColor);
-
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(valueLabel, BorderLayout.CENTER);
-
         card.putClientProperty("valueLabel", valueLabel);
-
         return card;
     }
 
@@ -232,7 +244,6 @@ public class AdminDashboard {
         double todayTotal = dataManager.getTodaysTotalSales();
         double lifeTotal = dataManager.getLifetimeTotalSales();
         int todayCount = dataManager.getTodaysOrderCount();
-
         double average = (todayCount > 0) ? (todayTotal / todayCount) : 0.0;
 
         totalSalesValue.setText("₱ " + String.format("%,.2f", todayTotal));
@@ -241,22 +252,14 @@ public class AdminDashboard {
         avgOrderValue.setText("₱ " + String.format("%,.2f", average));
     }
 
-    //
-
     public static Font loadCustomFont(float size) {
         try {
             InputStream is = AdminDashboard.class.getResourceAsStream("/logo.otf");
-
-            if (is == null) {
-                System.err.println("Could not find logo.otf in resources folder!");
-                return new Font("SansSerif", Font.PLAIN, (int)size);
-            }
-
+            if (is == null) return new Font("SansSerif", Font.PLAIN, (int) size);
             Font font = Font.createFont(Font.TRUETYPE_FONT, is);
             return font.deriveFont(size);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Font("SansSerif", Font.PLAIN, (int)size);
+            return new Font("SansSerif", Font.PLAIN, (int) size);
         }
     }
 
@@ -269,195 +272,98 @@ public class AdminDashboard {
         CardLayout cl = (CardLayout) contentPanel.getLayout();
         dataManager = new DataManager();
 
+        URL iconURL = getClass().getResource("/iconImage.png");
+        if (iconURL != null) {
+            ImageIcon logo = new ImageIcon(iconURL);
+            frame.setIconImage(logo.getImage());
+        }
 
-        logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new LoginUserInterface();
-                frame.dispose();
-            }
+        createUsersButton.addActionListener(e -> {
+            cl.show(contentPanel, "panel1");
+            handleButtonColor(createUsersButton);
+            loadUsersToTable();
         });
 
-        createUsersButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(contentPanel, "panel1");
-                loadUsersToTable();
-            }
+        editReceiptButton.addActionListener(e -> {
+            cl.show(contentPanel, "panel4");
+            handleButtonColor(editReceiptButton);
+            loadReceiptToTable();
         });
 
-        createFoodButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(contentPanel, "panel2");
-                loadFoodToTable();
-            }
+        createFoodButton.addActionListener(e -> {
+            cl.show(contentPanel, "panel2");
+            handleButtonColor(createFoodButton);
+            loadFoodToTable();
         });
 
-        transactionHistoryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(contentPanel, "panel3");
-                if (totalSalesValue == null) {
-                    setupSalesCards();
+        transactionHistoryButton.addActionListener(e -> {
+            cl.show(contentPanel, "panel3");
+            handleButtonColor(transactionHistoryButton);
+            if (totalSalesValue == null) setupSalesCards();
+            loadTransactionHistory();
+            refreshSalesSummary();
+        });
+
+        logoutButton.addActionListener(e -> {
+            new LoginUserInterface();
+            frame.dispose();
+        });
+
+        refreshButton.addActionListener(e -> loadUsersToTable());
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = userTable.getSelectedRow();
+            if (selectedRow != -1) {
+                int userId = Integer.parseInt(userTable.getValueAt(selectedRow, 0).toString());
+                if (userId == 1) {
+                    JOptionPane.showMessageDialog(frame, "System Error: The Admin account cannot be deleted.", "Access Denied", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-
-                loadTransactionHistory();
-                refreshSalesSummary();
+                if (JOptionPane.showConfirmDialog(frame, "Delete user?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    deleteUserFromDatabase(userId);
+                }
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please select a user.");
             }
         });
 
-        editReceiptButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(contentPanel, "panel4");
-                loadReceiptToTable();
-            }
-        });
+        createUserButton.addActionListener(e -> new CreateAccount(AdminDashboard.this));
 
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadUsersToTable();
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = userTable.getSelectedRow();
-
-                if (selectedRow != -1) {
-                    Object idValue = userTable.getValueAt(selectedRow, 0);
-                    int userId = Integer.parseInt(idValue.toString());
-
-                    if (userId == 1) {
-                        JOptionPane.showMessageDialog(frame, "System Error: The Admin account cannot be deleted.", "Access Denied", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        deleteUserFromDatabase(userId);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Please select a user from the table first.");
+        editButton.addActionListener(e -> {
+            int selectedRow = foodTable.getSelectedRow();
+            if (selectedRow != -1) {
+                String foodName = foodTable.getValueAt(selectedRow, 2).toString();
+                String cleanPrice = foodTable.getValueAt(selectedRow, 3).toString().replace("₱", "").trim();
+                String input = JOptionPane.showInputDialog(frame, "Edit Price for: " + foodName, cleanPrice);
+                if (input != null) {
+                    try {
+                        updateFoodPriceInDatabase(Integer.parseInt(foodTable.getValueAt(selectedRow, 0).toString()), Double.parseDouble(input));
+                    } catch (Exception ex) { JOptionPane.showMessageDialog(frame, "Invalid price."); }
                 }
             }
         });
 
-        createUserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new CreateAccount(AdminDashboard.this);
-            }
-        });
-
-        loadFoodToTable.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadFoodToTable();
-            }
-        });
-
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = foodTable.getSelectedRow();
-
-                if (selectedRow != -1) {
-                    Object idValue = foodTable.getValueAt(selectedRow, 0);
-                    String foodName = foodTable.getValueAt(selectedRow, 2).toString();
-                    String currentPrice = foodTable.getValueAt(selectedRow, 3).toString();
-
-                    String cleanCurrentPrice = currentPrice.replace("₱", "").trim();
-
-                    String newPriceInput = JOptionPane.showInputDialog(frame, "Editing Price for: " + foodName, cleanCurrentPrice);
-
-                    if (newPriceInput != null && !newPriceInput.trim().isEmpty()) {
-                        try {
-                            double newPrice = Double.parseDouble(newPriceInput.replaceAll("[^0-9.]", ""));
-                            int foodId = Integer.parseInt(idValue.toString());
-
-                            updateFoodPriceInDatabase(foodId, newPrice);
-                            loadFoodToTable();
-
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(frame, "Please enter a valid number (e.g., 150.50)");
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Please select a food item from the table first.");
+        editButton1.addActionListener(e -> {
+            int selectedRow = receiptTable.getSelectedRow();
+            if (selectedRow != -1) {
+                JTextField p = new JTextField(receiptTable.getValueAt(selectedRow, 1).toString());
+                JTextField c = new JTextField(receiptTable.getValueAt(selectedRow, 2).toString());
+                JTextField m = new JTextField(receiptTable.getValueAt(selectedRow, 3).toString());
+                Object[] msg = {"Branch:", p, "Contact:", c, "Email:", m};
+                if (JOptionPane.showConfirmDialog(frame, msg, "Edit Receipt", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+                    dataManager.updateReceiptHeader(Integer.parseInt(receiptTable.getValueAt(selectedRow, 0).toString()), p.getText(), c.getText(), m.getText());
+                    loadReceiptToTable();
                 }
             }
         });
 
-        editButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = receiptTable.getSelectedRow();
+        addItemButton.addActionListener(e -> new CreateFood(AdminDashboard.this));
 
-                if (selectedRow != -1) {
-                    int receiptId = Integer.parseInt(receiptTable.getValueAt(selectedRow, 0).toString());
-                    String currentPlace = receiptTable.getValueAt(selectedRow, 1).toString();
-                    String currentContact = receiptTable.getValueAt(selectedRow, 2).toString();
-                    String currentEmail = receiptTable.getValueAt(selectedRow, 3).toString();
-
-                    JTextField placeField = new JTextField(currentPlace);
-                    JTextField contactField = new JTextField(currentContact);
-                    JTextField emailField = new JTextField(currentEmail);
-
-                    Object[] message = {"Branch Name:", placeField, "Contact Number:", contactField, "Email Address:", emailField};
-
-                    int option = JOptionPane.showConfirmDialog(frame, message, "Edit Receipt Header", JOptionPane.OK_CANCEL_OPTION);
-
-                    if (option == JOptionPane.OK_OPTION) {
-                        String newPlace = placeField.getText().trim();
-                        String newContact = contactField.getText().trim();
-                        String newEmail = emailField.getText().trim();
-
-                        if (!newPlace.isEmpty() && !newContact.isEmpty() && !newEmail.isEmpty()) {
-                            if (dataManager.updateReceiptHeader(receiptId, newPlace, newContact, newEmail)) {
-                                JOptionPane.showMessageDialog(frame, "Receipt info updated successfully!");
-                                loadReceiptToTable();
-                            } else {
-                                JOptionPane.showMessageDialog(frame, "Error: Could not update database. Ensure details are unique.");
-                            }
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "All fields must be filled out.");
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Please select a branch from the table first.");
-                }
-            }
-        });
-
-        addItemButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new CreateFood(AdminDashboard.this);
-            }
-        });
-
-        removeItemButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = foodTable.getSelectedRow();
-
-                if (selectedRow != -1) {
-                    Object idValue = foodTable.getValueAt(selectedRow, 0);
-                    int foodId = Integer.parseInt(idValue.toString());
-                    String foodName = foodTable.getValueAt(selectedRow, 2).toString();
-
-                    int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to remove '" + foodName + "' from the menu?", "Confirm Deletion", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        deleteFoodFromDatabase(foodId);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Please select a food item from the table first.");
+        removeItemButton.addActionListener(e -> {
+            int selectedRow = foodTable.getSelectedRow();
+            if (selectedRow != -1) {
+                if (JOptionPane.showConfirmDialog(frame, "Remove item?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    deleteFoodFromDatabase(Integer.parseInt(foodTable.getValueAt(selectedRow, 0).toString()));
                 }
             }
         });
@@ -467,23 +373,7 @@ public class AdminDashboard {
                 if (evt.getClickCount() == 2) {
                     int row = tableHistory.getSelectedRow();
                     if (row != -1) {
-                        String path = tableHistory.getValueAt(row, 5).toString();
-
-                        try {
-                            File pdfFile = new File(path);
-                            if (pdfFile.exists()) {
-                                if (Desktop.isDesktopSupported()) {
-                                    Desktop.getDesktop().open(pdfFile);
-                                } else {
-                                    JOptionPane.showMessageDialog(frame, "Desktop not supported");
-                                }
-                            } else {
-                                JOptionPane.showMessageDialog(frame, "File not found: " + path);
-                            }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            JOptionPane.showMessageDialog(frame, "Error opening PDF: " + ex.getMessage());
-                        }
+                        try { Desktop.getDesktop().open(new File(tableHistory.getValueAt(row, 5).toString())); } catch (Exception ex) { ex.printStackTrace(); }
                     }
                 }
             }
@@ -491,16 +381,11 @@ public class AdminDashboard {
 
         foodTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = foodTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    Object pathObj = foodTable.getValueAt(selectedRow, 4);
-                    if (pathObj != null) {
-                        String path = pathObj.toString();
-                        displayImage(foodImagePreview, path);
-                    }
-                }
+                int row = foodTable.getSelectedRow();
+                if (row != -1) displayImage(foodImagePreview, foodTable.getValueAt(row, 4).toString());
             }
         });
+
         frame.setVisible(true);
     }
 
