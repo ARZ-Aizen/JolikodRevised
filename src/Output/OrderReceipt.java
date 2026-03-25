@@ -22,6 +22,7 @@ public class OrderReceipt {
     private JTable table1;
     private JTextField textField3, textField1, textField2, textField5, textField4;
     private JLabel labelTime, labelDate, cashierLabel, labelAddress, labelContact, labelEmail;
+    private JPanel wrapper;
 
     private DataManager dataManager = new DataManager();
 
@@ -93,7 +94,7 @@ public class OrderReceipt {
         textField4.setText(cash);
         textField5.setText(change);
 
-        frame.setSize(400, 900);
+        frame.setSize(400, 800);
         frame.setLocationRelativeTo(null);
 
 

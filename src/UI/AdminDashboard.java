@@ -59,8 +59,6 @@ public class AdminDashboard {
     private JLabel totalOrdersValue;
     private JLabel lifetimeSalesValue;
     private JLabel avgOrderValue;
-
-    // Defined Colors
     private final Color ACTIVE_COLOR = Color.decode("#FAD041");
     private final Color DEFAULT_COLOR = Color.WHITE;
 
@@ -74,11 +72,7 @@ public class AdminDashboard {
         table.setGridColor(new Color(230, 230, 230));
     }
 
-    /**
-     * Resets all sidebar buttons to default and highlights the selected one.
-     */
     private void handleButtonColor(JButton activeBtn) {
-        // List of all sidebar buttons to reset
         JButton[] sideButtons = {createUsersButton, editReceiptButton, createFoodButton, transactionHistoryButton};
 
         for (JButton btn : sideButtons) {

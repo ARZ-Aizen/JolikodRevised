@@ -500,7 +500,7 @@
                 <properties>
                   <alignmentX value="0.0"/>
                   <background color="-2880246"/>
-                  <font name="Inter" size="14" style="0"/>
+                  <font name="Inter" size="16" style="1"/>
                   <foreground color="-1"/>
                   <iconTextGap value="4"/>
                   <margin top="0" left="0" bottom="0" right="0"/>

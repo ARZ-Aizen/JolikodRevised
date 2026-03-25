@@ -10,7 +10,7 @@
     </properties>
     <border type="none"/>
     <children>
-      <component id="a5848" class="javax.swing.JLabel" binding="label" custom-create="true">
+      <component id="a5848" class="javax.swing.JLabel" binding="labelName" custom-create="true">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>

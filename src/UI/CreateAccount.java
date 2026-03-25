@@ -12,11 +12,22 @@ public class CreateAccount {
     private JTextField newUsername;
     private JPasswordField newPassword;
     private JButton createUserButton;
-    private JLabel label;
+    private JLabel labelName;
     private JLabel subLabel;
     private JPanel LoginPanel;
     private JFrame frame;
     private AdminDashboard parentDashboard;
+
+    public static Font loadCustomFont(float size) {
+        try {
+            InputStream is = CreateAccount.class.getResourceAsStream("/logo.otf");
+            if (is == null) return new Font("SansSerif", Font.PLAIN, (int) size);
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            return font.deriveFont(size);
+        } catch (Exception e) {
+            return new Font("SansSerif", Font.PLAIN, (int) size);
+        }
+    }
 
     public CreateAccount(AdminDashboard parent) {
         this.parentDashboard = parent;
@@ -57,22 +68,10 @@ public class CreateAccount {
     }
 
     private void createUIComponents() {
-        label = new JLabel("JOLIKOD");
+        labelName = new JLabel();
+        labelName.setFont(loadCustomFont(42f));
+        labelName.setForeground(Color.decode("#FAD041"));
 
-        try {
-            InputStream is = getClass().getResourceAsStream("/logo.otf");
-            if (is != null) {
-                Font customFont = Font.createFont(Font.TRUETYPE_FONT, is);
-                label.setFont(customFont.deriveFont(48f));
-            } else {
-                System.out.println("Critical: logo.otf not found in resources!");
-                label.setFont(new Font("SansSerif", Font.BOLD, 48));
-            }
-        } catch (Exception e) {
-            label.setFont(new Font("SansSerif", Font.BOLD, 48));
-        }
-
-        label.setForeground(Color.decode("#FAD041"));
         subLabel = new JLabel("Create User Account");
         subLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
     }
