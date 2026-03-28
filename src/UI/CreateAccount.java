@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 
 public class CreateAccount {
 
@@ -29,6 +30,13 @@ public class CreateAccount {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
+
+        URL iconURL = getClass().getResource("/iconImage.png");
+
+        if (iconURL != null) {
+            ImageIcon logo = new ImageIcon(iconURL);
+            frame.setIconImage(logo.getImage());
+        }
 
         newPassword.setLayout(new BorderLayout());
         newPasswordConfirm.setLayout(new BorderLayout());

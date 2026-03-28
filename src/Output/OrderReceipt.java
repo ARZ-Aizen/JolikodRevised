@@ -40,12 +40,11 @@ public class OrderReceipt {
 
             document.open();
 
-            // 3. Map the JPanel "Graphics" to the PDF "Graphics"
             PdfContentByte cb = writer.getDirectContent();
             PdfTemplate tp = cb.createTemplate(panel.getWidth(), panel.getHeight());
             Graphics2D g2 = tp.createGraphics(panel.getWidth(), panel.getHeight());
 
-            panel.print(g2); // Captures the UI
+            panel.print(g2);
             g2.dispose();
 
             cb.addTemplate(tp, 0, 0);
@@ -61,7 +60,6 @@ public class OrderReceipt {
         JFrame frame = new JFrame("Jolikod - Receipt");
         frame.setContentPane(this.receiptPanel);
 
-        // Date and Time Logic
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMMM dd, yyyy");

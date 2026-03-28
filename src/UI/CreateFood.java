@@ -30,9 +30,12 @@ public class CreateFood {
 
         frame = new JFrame("Jolikod - Add New Food Item");
         frame.setContentPane(mainPanel);
+
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        frame.setSize(400, 320);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
         frame.setVisible(true);
 
         URL iconURL = getClass().getResource("/iconImage.png");
@@ -41,7 +44,6 @@ public class CreateFood {
             ImageIcon logo = new ImageIcon(iconURL);
             frame.setIconImage(logo.getImage());
         }
-
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
