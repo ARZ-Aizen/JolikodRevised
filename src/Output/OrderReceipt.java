@@ -102,7 +102,7 @@ public class OrderReceipt {
         btnprint.addActionListener(e -> {
             exportToPDF(receiptPanel, fullPath);
 
-            JOptionPane.showMessageDialog(frame, "PDF Receipt Saved to /receipts folder!");
+            JOptionPane.showMessageDialog(frame, "PDF Receipt Saved!");
             frame.dispose();
         });
 
