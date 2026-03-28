@@ -388,7 +388,8 @@
                         <constraints/>
                         <properties>
                           <enabled value="true"/>
-                          <font name="Inter" size="16" style="0"/>
+                          <font name="Inter" size="14" style="0"/>
+                          <showVerticalLines value="true"/>
                         </properties>
                       </component>
                     </children>

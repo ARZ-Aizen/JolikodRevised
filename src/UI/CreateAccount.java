@@ -3,8 +3,8 @@ package UI;
 import Database.DataManager;
 import javax.swing.*;
 import java.awt.*;
-import java.io.InputStream;
-import java.net.URL;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CreateAccount {
 
@@ -15,19 +15,11 @@ public class CreateAccount {
     private JLabel labelName;
     private JLabel subLabel;
     private JPanel LoginPanel;
+    private JPasswordField newPasswordConfirm;
+    private JLabel showPass;
+    private JLabel showConfirmPass;
     private JFrame frame;
     private AdminDashboard parentDashboard;
-
-    public static Font loadCustomFont(float size) {
-        try {
-            InputStream is = CreateAccount.class.getResourceAsStream("/logo.otf");
-            if (is == null) return new Font("SansSerif", Font.PLAIN, (int) size);
-            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-            return font.deriveFont(size);
-        } catch (Exception e) {
-            return new Font("SansSerif", Font.PLAIN, (int) size);
-        }
-    }
 
     public CreateAccount(AdminDashboard parent) {
         this.parentDashboard = parent;
@@ -38,19 +30,65 @@ public class CreateAccount {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
 
-        URL iconURL = getClass().getResource("/iconImage.png");
+        newPassword.setLayout(new BorderLayout());
+        newPasswordConfirm.setLayout(new BorderLayout());
 
-        if (iconURL != null) {
-            ImageIcon logo = new ImageIcon(iconURL);
-            frame.setIconImage(logo.getImage());
-        }
+        showPass.setHorizontalAlignment(SwingConstants.RIGHT);
+        showConfirmPass.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        showPass.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
+        showConfirmPass.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
+
+        newPassword.add(showPass, BorderLayout.EAST);
+        newPasswordConfirm.add(showConfirmPass, BorderLayout.EAST);
+
+        showPass.setOpaque(false);
+        showConfirmPass.setOpaque(false);
+        showPass.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        showConfirmPass.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        showPass.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        showConfirmPass.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        showPass.setOpaque(false);
+        showConfirmPass.setOpaque(false);
+
+        char defaultEchoChar = newPassword.getEchoChar();
+
+        showPass.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (newPassword.getEchoChar() != (char) 0) {
+                    newPassword.setEchoChar((char) 0); // Show password
+                } else {
+                    newPassword.setEchoChar(defaultEchoChar); // Hide password
+                }
+            }
+        });
+
+        showConfirmPass.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (newPasswordConfirm.getEchoChar() != (char) 0) {
+                    newPasswordConfirm.setEchoChar((char) 0); // Show password
+                } else {
+                    newPasswordConfirm.setEchoChar(defaultEchoChar); // Hide password
+                }
+            }
+        });
 
         createUserButton.addActionListener(e -> {
             String user = newUsername.getText().trim();
             String pass = new String(newPassword.getPassword());
+            String confirmPass = new String(newPasswordConfirm.getPassword());
 
-            if (user.isEmpty() || pass.isEmpty()) {
+            if (user.isEmpty() || pass.isEmpty() || confirmPass.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                return;
+            }
+
+            if (!pass.equals(confirmPass)) {
+                JOptionPane.showMessageDialog(frame, "Passwords do not match. Please try again.");
                 return;
             }
 
@@ -65,14 +103,5 @@ public class CreateAccount {
         });
 
         frame.setVisible(true);
-    }
-
-    private void createUIComponents() {
-        labelName = new JLabel();
-        labelName.setFont(loadCustomFont(42f));
-        labelName.setForeground(Color.decode("#FAD041"));
-
-        subLabel = new JLabel("Create User Account");
-        subLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
     }
 }

@@ -218,11 +218,11 @@ public class UserDashboard {
         cartTable.setModel(new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         });
+        cartTable.getTableHeader().setFont(cartTable.getTableHeader().getFont().deriveFont(Font.BOLD));
 
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
         for (JTextField f : currencyFields) ConfigureCurrencyField(f);
 
-        // --- Sidebar Menu Listeners with Selection Logic ---
 
         allButton.addActionListener(e -> {
             cl.show(panelDish, "Card1");
@@ -249,7 +249,6 @@ public class UserDashboard {
             handleMenuSelection(dessertButton);
         });
 
-        // Initialize first selection
         handleMenuSelection(allButton);
 
         logoutButton.addActionListener(e -> {
@@ -266,24 +265,59 @@ public class UserDashboard {
         });
 
         payButton.addActionListener(e -> {
-            // ... (Payment logic remains same)
+            DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
+            if (model.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(frame, "Your cart is empty. Please add items before paying.", "No Order", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             try {
-                double total = (textField3 instanceof JFormattedTextField) ? ((Number) ((JFormattedTextField) textField3).getValue()).doubleValue() : Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
+                double total = (textField3 instanceof JFormattedTextField) ?
+                        ((Number) ((JFormattedTextField) textField3).getValue()).doubleValue() :
+                        Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
+
                 String rawCash = textField4.getText().replaceAll(",", "").trim();
-                if (rawCash.isEmpty()) return;
-                double cash = Double.parseDouble(rawCash);
-                if (cash >= total) {
-                    double change = cash - total;
-                    textField5.setText(String.format("%,.2f", change));
-                    String path = System.getProperty("user.dir") + File.separator + "receipts" + File.separator + "Receipt_" + System.currentTimeMillis() + ".pdf";
-                    if (dataManager.saveTransaction(total, userName, cash, change, path)) {
-                        new OrderReceipt((DefaultTableModel) cartTable.getModel(), textField1.getText(), textField2.getText(), textField3.getText(), textField4.getText(), textField5.getText(), userName, path);
-                        ((DefaultTableModel) cartTable.getModel()).setRowCount(0);
-                        updateCalculations();
-                        textField4.setText(""); textField5.setText("");
-                    }
+
+                if (rawCash.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please enter the cash amount received from the customer.", "Missing Payment", JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
-            } catch (Exception ex) { ex.printStackTrace(); }
+
+                double cash = Double.parseDouble(rawCash);
+
+                if (cash < total) {
+                    JOptionPane.showMessageDialog(frame, "Insufficient cash! The total is ₱" + String.format("%.2f", total) + ".", "Payment Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                double change = cash - total;
+                textField5.setText(String.format("%,.2f", change));
+
+                String dirPath = System.getProperty("user.dir") + File.separator + "receipts";
+                File dir = new File(dirPath);
+                if (!dir.exists()) dir.mkdirs();
+
+                String path = dirPath + File.separator + "Receipt_" + System.currentTimeMillis() + ".pdf";
+
+                if (dataManager.saveTransaction(total, userName, cash, change, path)) {
+
+                    JOptionPane.showMessageDialog(frame, "Payment Successful!\nChange: ₱" + String.format("%.2f", change), "Transaction Complete", JOptionPane.INFORMATION_MESSAGE);
+
+                    new OrderReceipt(model, textField1.getText(), textField2.getText(), textField3.getText(), textField4.getText(), textField5.getText(), userName, path);
+                    model.setRowCount(0);
+                    updateCalculations();
+                    textField4.setText("");
+                    textField5.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Failed to save the transaction to the database.", "Database Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid number for the cash amount.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "An unexpected error occurred.", "System Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         frame.setVisible(true);
