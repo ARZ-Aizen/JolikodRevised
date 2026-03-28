@@ -219,6 +219,7 @@ public class UserDashboard {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         });
         cartTable.getTableHeader().setFont(cartTable.getTableHeader().getFont().deriveFont(Font.BOLD));
+        cartTable.getTableHeader().setReorderingAllowed(false);
 
         JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
         for (JTextField f : currencyFields) ConfigureCurrencyField(f);

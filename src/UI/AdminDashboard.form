@@ -383,7 +383,7 @@
                                   <component id="12a4a" class="javax.swing.JTable" binding="receiptTable">
                                     <constraints/>
                                     <properties>
-                                      <enabled value="false"/>
+                                      <enabled value="true"/>
                                       <font name="Inter" size="16" style="0"/>
                                       <rowHeight value="40"/>
                                     </properties>

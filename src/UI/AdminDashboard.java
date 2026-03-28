@@ -66,6 +66,7 @@ public class AdminDashboard {
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Inter", Font.PLAIN, 18));
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
+        header.setReorderingAllowed(false);
 
         table.setRowHeight(30);
         table.setFont(new Font("Inter", Font.PLAIN, 16));
