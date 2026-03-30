@@ -23,7 +23,6 @@ public class AdminDashboard {
     private JFrame frame;
     private DataManager dataManager;
 
-
     private final Color ACTIVE_COLOR = Color.decode("#FAD041");
     private final Color DEFAULT_COLOR = Color.WHITE;
 

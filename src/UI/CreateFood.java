@@ -13,13 +13,9 @@ import java.net.URL;
 
 public class CreateFood {
     private JPanel mainPanel;
-    private JTextField itemName;
+    private JTextField itemName, priceName, pathfield;
     private JComboBox categoryName;
-    private JTextField priceName;
-    private JButton saveButton;
-    private JButton cancelButton;
-    private JTextField pathfield;
-    private JButton browseButton;
+    private JButton saveButton, cancelButton, browseButton;
     private JFrame frame;
     private DataManager dataManager;
     private AdminDashboard parentDashboard;
@@ -44,6 +40,7 @@ public class CreateFood {
             ImageIcon logo = new ImageIcon(iconURL);
             frame.setIconImage(logo.getImage());
         }
+
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

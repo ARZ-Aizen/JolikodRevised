@@ -17,12 +17,12 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class OrderReceipt {
 
-    private JPanel receiptPanel;
+    private JPanel receiptPanel, wrapper;
     private JButton btnprint;
     private JTable table1;
     private JTextField textField3, textField1, textField2, textField5, textField4;
     private JLabel labelTime, labelDate, cashierLabel, labelAddress, labelContact, labelEmail;
-    private JPanel wrapper;
+
 
     private DataManager dataManager = new DataManager();
 

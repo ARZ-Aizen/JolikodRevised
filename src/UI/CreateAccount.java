@@ -9,16 +9,11 @@ import java.net.URL;
 
 public class CreateAccount {
 
-    private JPanel panelCreate;
+    private JPanel panelCreate, LoginPanel;
     private JTextField newUsername;
-    private JPasswordField newPassword;
+    private JPasswordField newPassword,newPasswordConfirm;
     private JButton createUserButton;
-    private JLabel labelName;
-    private JLabel subLabel;
-    private JPanel LoginPanel;
-    private JPasswordField newPasswordConfirm;
-    private JLabel showPass;
-    private JLabel showConfirmPass;
+    private JLabel labelName, subLabel, showPass, showConfirmPass;
     private JFrame frame;
     private AdminDashboard parentDashboard;
 
