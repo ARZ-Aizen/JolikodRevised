@@ -15,50 +15,15 @@ import javax.swing.table.JTableHeader;
 
 public class AdminDashboard {
 
-    private JPanel admin;
-    private JButton logoutButton;
-    private JButton createUsersButton;
-    private JButton createFoodButton;
-    private JButton transactionHistoryButton;
-    private JButton editReceiptButton;
-    private JPanel contentPanel;
-    private JPanel LeftPanel;
-    private JPanel card1;
-    private JPanel card2;
-    private JPanel card3;
-    private JButton createUserButton;
-    private JPanel btnCreateUser;
-    private JTable userTable;
-    private JButton deleteButton;
-    private JButton refreshButton;
-    private JButton editButton;
-    private JButton loadFoodToTable;
-    private JPanel OrderPanel;
-    private JTable foodTable;
-    private JScrollPane FoodScroll;
-    private JScrollPane UserScroll;
-    private JPanel card4;
-    private JTable receiptTable;
-    private JButton editButton1;
-    private JButton removeItemButton;
-    private JButton addItemButton;
-    private JTable tableHistory;
-    private JScrollPane historyScroll;
-    private JScrollPane salesScroll;
-    private JPanel historyPanel;
-    private JPanel historyNamePanel;
-    private JPanel HistoryMain;
-    private JPanel salesPanel;
-    private JPanel salesLabelPanel;
-    private JPanel salesMain;
-    private JLabel AdminLabel;
+    private JPanel admin, contentPanel, LeftPanel, card1, card2, card3, card4, btnCreateUser, OrderPanel, historyPanel, historyNamePanel, HistoryMain, salesPanel, salesLabelPanel, salesMain;
+    private JButton logoutButton, createUsersButton, createFoodButton, transactionHistoryButton, editReceiptButton, createUserButton, deleteButton, refreshButton, editButton, loadFoodToTable, editButton1, removeItemButton, addItemButton;
+    private JTable userTable, foodTable, receiptTable, tableHistory;
+    private JScrollPane FoodScroll, UserScroll, historyScroll, salesScroll;
+    private JLabel AdminLabel, foodImagePreview, totalSalesValue, totalOrdersValue, lifetimeSalesValue, avgOrderValue;
     private JFrame frame;
-    private JLabel foodImagePreview;
     private DataManager dataManager;
-    private JLabel totalSalesValue;
-    private JLabel totalOrdersValue;
-    private JLabel lifetimeSalesValue;
-    private JLabel avgOrderValue;
+
+
     private final Color ACTIVE_COLOR = Color.decode("#FAD041");
     private final Color DEFAULT_COLOR = Color.WHITE;
 

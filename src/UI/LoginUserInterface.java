@@ -12,13 +12,11 @@ import Database.DataManager;
 
 public class LoginUserInterface {
 
-    private JPanel panel1;
+    private JPanel panel1, userWrapper, passwordWraapper;
     private JTextField textField1;
     private JPasswordField passwordField1;
     private JButton loginButton;
-    private JPanel passwordWraapper;
     private JLabel eyelabel;
-    private JPanel userWrapper;
     private JFrame frame;
 
     public LoginUserInterface() {

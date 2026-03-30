@@ -20,27 +20,15 @@ import Database.DataManager.FoodItem;
 
 public class UserDashboard {
 
-    private JPanel user;
-    private JPanel main;
-    private JPanel cardSide;
-    private JPanel orderSide;
-    private JPanel panelDish;
-    private JPanel allDish, mainDish, sideDish, drinkDish, dessertDish;
+    private JPanel user, main, cardSide, orderSide, panelDish, allDish, mainDish, sideDish, drinkDish, dessertDish, panelButton, payRemove, panelSale;
     private JButton allButton, mainDishButton, sideDishButton, drinksButton, dessertButton, logoutButton;
     private JTable cartTable;
-    private JScrollPane cartScroll;
     private JTextField textField1, textField2, textField3, textField4, textField5;
     private JButton payButton, removeButton;
     private JLabel welcomeLabel;
     private JFrame frame;
+    private JScrollPane scrollAll, scrollMain, scrollSide, scrollDrink, scrollDessert, cartScroll;
     private DataManager dataManager;
-    private JPanel panelButton;
-    private JPanel payRemove, panelSale;
-    private JScrollPane scrollAll;
-    private JScrollPane scrollMain;
-    private JScrollPane scrollSide;
-    private JScrollPane scrollDrink;
-    private JScrollPane scrollDessert;
 
     private final Color ACTIVE_COLOR = Color.decode("#FAD041");
     private final Color DEFAULT_COLOR = new Color(240, 240, 240);
@@ -57,10 +45,15 @@ public class UserDashboard {
     }
 
     public void ConfigurePositiveSpinner(JSpinner spinner) {
-        spinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
+        spinner.setModel(new SpinnerNumberModel(1, 1, 99, 1));
+
         JComponent editor = spinner.getEditor();
         if (editor instanceof JSpinner.DefaultEditor) {
-            ((JSpinner.DefaultEditor) editor).getTextField().setEditable(false);
+            JTextField textField = ((JSpinner.DefaultEditor) editor).getTextField();
+            textField.setEditable(false);
+            textField.setBackground(Color.WHITE);
+            textField.setFocusable(false);
+            textField.setHorizontalAlignment(JTextField.CENTER);
         }
     }
 
@@ -82,6 +75,11 @@ public class UserDashboard {
         card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         card.setBackground(Color.WHITE);
         card.setPreferredSize(new Dimension(180, 220));
+
+        JSpinner qtySpinner = new JSpinner();
+        ConfigurePositiveSpinner(qtySpinner); // Apply the fix here
+        qtySpinner.setMaximumSize(new Dimension(80, 30));
+        qtySpinner.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel imgLabel = new JLabel();
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -106,10 +104,6 @@ public class UserDashboard {
         JLabel priceLabel = new JLabel("₱" + String.format("%.2f", price));
         priceLabel.setForeground(Color.RED);
         priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JSpinner qtySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
-        qtySpinner.setMaximumSize(new Dimension(60, 25));
-        qtySpinner.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton addBtn = new JButton("Add");
         addBtn.setBackground(new Color(255, 204, 0));
