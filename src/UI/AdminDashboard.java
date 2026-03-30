@@ -120,11 +120,15 @@ public class AdminDashboard {
         String[] columns = {"ID", "Username", "Password"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         List<Object[]> users = dataManager.getAllUsers();
-        for (Object[] user : users) { model.addRow(user); }
+        for (Object[] user : users) {
+            model.addRow(user);
+        }
 
         userTable.setModel(model);
         styleTable(userTable);
@@ -137,10 +141,14 @@ public class AdminDashboard {
         String[] columns = {"ID", "Branch Name", "Contact Number", "Email Address"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         List<Object[]> receipts = dataManager.getAllReceipts();
-        for (Object[] receipt : receipts) { model.addRow(receipt); }
+        for (Object[] receipt : receipts) {
+            model.addRow(receipt);
+        }
 
         receiptTable.setModel(model);
         styleTable(receiptTable);
@@ -153,11 +161,15 @@ public class AdminDashboard {
         String[] columns = {"ID", "Category", "Name", "Price", "Image Path"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         List<Object[]> foods = dataManager.getAllFoods();
-        for (Object[] food : foods) { model.addRow(food); }
+        for (Object[] food : foods) {
+            model.addRow(food);
+        }
 
         foodTable.setModel(model);
         styleTable(foodTable);
@@ -180,10 +192,14 @@ public class AdminDashboard {
         String[] columns = {"Date", "Total Price", "Cashier", "Amount Paid", "Change", "Receipt Path"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         List<Object[]> history = dataManager.getAllTransactions();
-        for (Object[] row : history) { model.addRow(row); }
+        for (Object[] row : history) {
+            model.addRow(row);
+        }
 
         tableHistory.setModel(model);
         styleTable(tableHistory);
@@ -328,27 +344,93 @@ public class AdminDashboard {
             int selectedRow = foodTable.getSelectedRow();
             if (selectedRow != -1) {
                 String foodName = foodTable.getValueAt(selectedRow, 2).toString();
-                String cleanPrice = foodTable.getValueAt(selectedRow, 3).toString().replace("₱", "").trim();
-                String input = JOptionPane.showInputDialog(frame, "Edit Price for: " + foodName, cleanPrice);
-                if (input != null) {
+                String currentPriceStr = foodTable.getValueAt(selectedRow, 3).toString()
+                        .replace("₱", "").replace(",", "").trim();
+                int foodId = Integer.parseInt(foodTable.getValueAt(selectedRow, 0).toString());
+
+                boolean validEntry = false;
+                while (!validEntry) {
+                    String input = JOptionPane.showInputDialog(frame,
+                            "Enter new price for " + foodName + ":", currentPriceStr);
+
+                    if (input == null) break;
+
                     try {
-                        updateFoodPriceInDatabase(Integer.parseInt(foodTable.getValueAt(selectedRow, 0).toString()), Double.parseDouble(input));
-                    } catch (Exception ex) { JOptionPane.showMessageDialog(frame, "Invalid price."); }
+                        double newPrice = Double.parseDouble(input.trim());
+
+                        if (newPrice <= 0) {
+                            JOptionPane.showMessageDialog(frame,
+                                    "Price must be greater than zero.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                            continue;
+                        }
+
+                        if (dataManager.updateFoodPrice(foodId, newPrice)) {
+                            JOptionPane.showMessageDialog(frame, "Price updated successfully!");
+                            loadFoodToTable();
+                            validEntry = true;
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "Database error. Update failed.");
+                            break;
+                        }
+
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(frame,
+                                "Invalid input. Please enter a numeric value (e.g., 150.50).",
+                                "Format Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please select a food item from the table first.");
             }
         });
 
         editButton1.addActionListener(e -> {
             int selectedRow = receiptTable.getSelectedRow();
             if (selectedRow != -1) {
-                JTextField p = new JTextField(receiptTable.getValueAt(selectedRow, 1).toString());
-                JTextField c = new JTextField(receiptTable.getValueAt(selectedRow, 2).toString());
-                JTextField m = new JTextField(receiptTable.getValueAt(selectedRow, 3).toString());
-                Object[] msg = {"Branch:", p, "Contact:", c, "Email:", m};
-                if (JOptionPane.showConfirmDialog(frame, msg, "Edit Receipt", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-                    dataManager.updateReceiptHeader(Integer.parseInt(receiptTable.getValueAt(selectedRow, 0).toString()), p.getText(), c.getText(), m.getText());
-                    loadReceiptToTable();
+                JTextField branchField = new JTextField(receiptTable.getValueAt(selectedRow, 1).toString());
+                JTextField contactField = new JTextField(receiptTable.getValueAt(selectedRow, 2).toString());
+                JTextField emailField = new JTextField(receiptTable.getValueAt(selectedRow, 3).toString());
+
+                Object[] message = {
+                        "Branch Name:", branchField,
+                        "Contact Number:", contactField,
+                        "Email Address:", emailField
+                };
+
+                int option = JOptionPane.showConfirmDialog(frame, message, "Edit Receipt Header", JOptionPane.OK_CANCEL_OPTION);
+
+                if (option == JOptionPane.OK_OPTION) {
+                    String branch = branchField.getText().trim();
+                    String contact = contactField.getText().trim();
+                    String email = emailField.getText().trim();
+
+                    if (branch.isEmpty() || contact.isEmpty() || email.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "All fields are required. Please fill in all details.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    if (!contact.matches("[0-9+\\-() ]+")) {
+                        JOptionPane.showMessageDialog(frame, "Invalid Contact Number. Please use numbers and standard symbols (+, -, parenthesis).", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    if (!email.contains("@") || !email.contains(".")) {
+                        JOptionPane.showMessageDialog(frame, "Please enter a valid email address.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    int receiptId = Integer.parseInt(receiptTable.getValueAt(selectedRow, 0).toString());
+                    boolean success = dataManager.updateReceiptHeader(receiptId, branch, contact, email);
+
+                    if (success) {
+                        JOptionPane.showMessageDialog(frame, "Receipt details updated successfully!");
+                        loadReceiptToTable();
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Failed to update database.", "Database Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please select a receipt row to edit.", "No Selection", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -356,10 +438,27 @@ public class AdminDashboard {
 
         removeItemButton.addActionListener(e -> {
             int selectedRow = foodTable.getSelectedRow();
+
             if (selectedRow != -1) {
-                if (JOptionPane.showConfirmDialog(frame, "Remove item?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    deleteFoodFromDatabase(Integer.parseInt(foodTable.getValueAt(selectedRow, 0).toString()));
+                String foodName = foodTable.getValueAt(selectedRow, 2).toString();
+                int foodId = Integer.parseInt(foodTable.getValueAt(selectedRow, 0).toString());
+                int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to remove '" + foodName + "' from the menu?\nThis action cannot be undone.", "Confirm Deletion", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    if (dataManager.deleteFood(foodId)) {
+                        JOptionPane.showMessageDialog(frame, foodName + " has been removed from the database.");
+                        loadFoodToTable();
+
+                        if (foodImagePreview != null) {
+                            foodImagePreview.setIcon(null);
+                            foodImagePreview.setText("Select an item");
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Error: Could not delete the item. It might be linked to existing orders.", "Database Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please select a food item from the table to remove.", "No Selection", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -368,7 +467,11 @@ public class AdminDashboard {
                 if (evt.getClickCount() == 2) {
                     int row = tableHistory.getSelectedRow();
                     if (row != -1) {
-                        try { Desktop.getDesktop().open(new File(tableHistory.getValueAt(row, 5).toString())); } catch (Exception ex) { ex.printStackTrace(); }
+                        try {
+                            Desktop.getDesktop().open(new File(tableHistory.getValueAt(row, 5).toString()));
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             }
