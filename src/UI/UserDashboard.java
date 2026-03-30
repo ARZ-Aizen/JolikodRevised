@@ -145,9 +145,13 @@ public class UserDashboard {
             else if (item.category.equalsIgnoreCase("Dessert")) dessertDish.add(catCard);
         }
 
-        allDish.revalidate(); mainDish.revalidate(); sideDish.revalidate();
-        drinkDish.revalidate(); dessertDish.revalidate();
-        panelDish.revalidate(); panelDish.repaint();
+        allDish.revalidate();
+        mainDish.revalidate();
+        sideDish.revalidate();
+        drinkDish.revalidate();
+        dessertDish.revalidate();
+        panelDish.revalidate();
+        panelDish.repaint();
     }
 
     public void addItemToTable(String itemName, int quantity) {
@@ -206,7 +210,10 @@ public class UserDashboard {
         CardLayout cl = (CardLayout) panelDish.getLayout();
 
         cartTable.setModel(new DefaultTableModel(new Object[]{"Item Name", "Price", "Qty", "Total"}, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         });
         cartTable.getTableHeader().setFont(cartTable.getTableHeader().getFont().deriveFont(Font.BOLD));
         cartTable.getTableHeader().setReorderingAllowed(false);

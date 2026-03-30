@@ -19,7 +19,6 @@ public class DataManager {
                     return rs.getInt("id");
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -264,8 +263,4 @@ public class DataManager {
         } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
-
-
-
-
 }

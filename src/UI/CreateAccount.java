@@ -1,6 +1,7 @@
 package UI;
 
 import Database.DataManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -11,7 +12,7 @@ public class CreateAccount {
 
     private JPanel panelCreate, LoginPanel;
     private JTextField newUsername;
-    private JPasswordField newPassword,newPasswordConfirm;
+    private JPasswordField newPassword, newPasswordConfirm;
     private JButton createUserButton;
     private JLabel labelName, subLabel, showPass, showConfirmPass;
     private JFrame frame;
