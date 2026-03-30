@@ -6,6 +6,7 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.text.NumberFormat;
@@ -24,6 +25,7 @@ public class UserDashboard {
     private JLabel welcomeLabel;
     private JFrame frame;
     private JScrollPane scrollAll, scrollMain, scrollSide, scrollDrink, scrollDessert, cartScroll;
+    private JLabel logoLabel;
     private DataManager dataManager;
 
     private final Color ACTIVE_COLOR = Color.decode("#FAD041");
@@ -79,20 +81,31 @@ public class UserDashboard {
 
         JLabel imgLabel = new JLabel();
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         try {
-            java.net.URL imgURL = getClass().getResource("/" + imgPath);
-            if (imgURL != null) {
-                ImageIcon icon = new ImageIcon(imgURL);
+            ImageIcon icon = null;
+
+            File projectFile = new File(imgPath);
+
+            if (projectFile.exists()) {
+                icon = new ImageIcon(projectFile.getAbsolutePath());
+            } else {
+                java.net.URL imgURL = getClass().getResource("/" + imgPath);
+                if (imgURL != null) {
+                    icon = new ImageIcon(imgURL);
+                }
+            }
+            if (icon != null) {
                 Image img = icon.getImage().getScaledInstance(120, 100, Image.SCALE_SMOOTH);
                 imgLabel.setIcon(new ImageIcon(img));
                 imgLabel.setText("");
             } else {
-                imgLabel.setText("[ Missing ]");
+                imgLabel.setText("[ Image Missing ]");
             }
+
         } catch (Exception e) {
             imgLabel.setText("Error");
         }
-
         JLabel nameLabel = new JLabel(name);
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -190,6 +203,18 @@ public class UserDashboard {
             subTotalField.setText(String.format("%.2f", subtotal));
             vatField.setText(String.format("%.2f", vat));
             totalField.setText(String.format("%.2f", grandTotal));
+        }
+    }
+
+
+    public static Font loadCustomFont(float size) {
+        try {
+            InputStream is = UserDashboard.class.getResourceAsStream("/logo.otf");
+            if (is == null) return new Font("SansSerif", Font.PLAIN, (int) size);
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            return font.deriveFont(size);
+        } catch (Exception e) {
+            return new Font("SansSerif", Font.PLAIN, (int) size);
         }
     }
 
@@ -319,5 +344,11 @@ public class UserDashboard {
         });
 
         frame.setVisible(true);
+    }
+
+    private void createUIComponents() {
+        logoLabel = new JLabel();
+        logoLabel.setFont(loadCustomFont(42f));
+        logoLabel.setForeground(Color.decode("#FAD041"));
     }
 }

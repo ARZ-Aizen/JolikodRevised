@@ -1,9 +1,11 @@
 package Database;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class DataManager {
 
     public int login(String username, String password) {
@@ -54,14 +56,38 @@ public class DataManager {
         }
     }
 
-    public boolean addFood(String category, String name, double price, String imagePath) {
+    public String saveImageToProject(String sourcePath) {
+        if (sourcePath == null || sourcePath.isEmpty()) return "default.png";
+
+        try {
+            File sourceFile = new File(sourcePath);
+            if (!sourceFile.exists()) return sourcePath;
+
+            Path targetDir = Paths.get("images");
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+            Path targetPath = targetDir.resolve(sourceFile.getName());
+            Files.copy(sourceFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            return "images/" + sourceFile.getName();
+
+        } catch (IOException e) {
+            System.err.println("Error copying image: " + e.getMessage());
+            return sourcePath;
+        }
+    }
+
+    public boolean addFood(String category, String name, double price, String originalPath) {
+        String projectPath = saveImageToProject(originalPath);
+
         String sql = "INSERT INTO foods (category, name, price, image_path) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseHelper.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, category);
             pstmt.setString(2, name);
             pstmt.setDouble(3, price);
-            pstmt.setString(4, imagePath);
+            pstmt.setString(4, projectPath);
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -180,9 +206,13 @@ public class DataManager {
         String sql = "SELECT name, category, price, image_path FROM foods";
 
         try (Connection conn = DatabaseHelper.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
             while (rs.next()) {
-                menu.add(new FoodItem(rs.getString("name"), rs.getString("category"), rs.getDouble("price"), rs.getString("image_path")));
+                menu.add(new FoodItem(
+                        rs.getString("name"),
+                        rs.getString("category"),
+                        rs.getDouble("price"),
+                        rs.getString("image_path")
+                ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
