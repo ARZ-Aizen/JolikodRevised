@@ -1,20 +1,16 @@
 package UI;
 
-import com.formdev.flatlaf.FlatLightLaf;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
 
 import Database.DataManager;
 
 public class LoginUserInterface {
 
-    private JPanel panel1, userWrapper, passwordWraapper;
-    private JTextField textField1;
-    private JPasswordField passwordField1;
+    private JPanel loginPanel, userWrapper, passwordWrapper, leftPanel, rightPanel;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
     private JButton loginButton;
     private JLabel eyelabel;
     private JFrame frame;
@@ -22,7 +18,7 @@ public class LoginUserInterface {
     public LoginUserInterface() {
         frame = new JFrame("Jolikod - Login");
         frame.setResizable(false);
-        frame.setContentPane(this.panel1);
+        frame.setContentPane(this.loginPanel);
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
@@ -35,21 +31,21 @@ public class LoginUserInterface {
         }
 
 
-        passwordWraapper.setOpaque(false);
+        passwordWrapper.setOpaque(false);
         userWrapper.setOpaque(false);
 
-        textField1.putClientProperty("JComponent.outline", null);
-        passwordField1.putClientProperty("JComponent.outline", null);
+        usernameField.putClientProperty("JComponent.outline", null);
+        passwordField.putClientProperty("JComponent.outline", null);
 
         loginButton.putClientProperty("JButton.buttonType", "roundRect");
-        textField1.putClientProperty("JTextField.padding", new Insets(0, 10, 0, 0));
-        passwordField1.putClientProperty("JTextField.padding", new Insets(0, 10, 0, 0));
+        usernameField.putClientProperty("JTextField.padding", new Insets(0, 10, 0, 0));
+        passwordField.putClientProperty("JTextField.padding", new Insets(0, 10, 0, 0));
 
-        textField1.setBackground(Color.WHITE);
-        passwordField1.setBackground(Color.WHITE);
+        usernameField.setBackground(Color.WHITE);
+        passwordField.setBackground(Color.WHITE);
 
-        textField1.putClientProperty("JTextField.placeholderText", "Enter your username");
-        passwordField1.putClientProperty("JTextField.placeholderText", "Enter your password");
+        usernameField.putClientProperty("JTextField.placeholderText", "Enter your username");
+        passwordField.putClientProperty("JTextField.placeholderText", "Enter your password");
 
         if (eyelabel != null) {
             try {
@@ -63,7 +59,7 @@ public class LoginUserInterface {
                 e.printStackTrace();
             }
 
-            passwordField1.putClientProperty("JTextField.trailingComponent", eyelabel);
+            passwordField.putClientProperty("JTextField.trailingComponent", eyelabel);
 
             eyelabel.setText("");
             eyelabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -75,24 +71,24 @@ public class LoginUserInterface {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     isHidden = !isHidden;
-                    passwordField1.setEchoChar(isHidden ? '•' : (char) 0);
+                    passwordField.setEchoChar(isHidden ? '•' : (char) 0);
                 }
             });
         }
 
         loginButton.addActionListener(e -> {
-            String user = textField1.getText();
-            String pass = new String(passwordField1.getPassword());
+            String user = usernameField.getText();
+            String pass = new String(passwordField.getPassword());
             DataManager manager = new DataManager();
             int userId = manager.login(user, pass);
 
             if (userId != -1) {
-                JOptionPane.showMessageDialog(panel1, "Welcome, " + user + "!");
+                JOptionPane.showMessageDialog(loginPanel, "Welcome, " + user + "!");
                 if (userId == 1) new AdminDashboard();
                 else new UserDashboard(user);
                 frame.dispose();
             } else {
-                JOptionPane.showMessageDialog(panel1, "Invalid Credentials", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(loginPanel, "Invalid Credentials", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         frame.setVisible(true);

@@ -8,10 +8,6 @@ import java.awt.*;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
 
 import Database.DataManager;
@@ -20,10 +16,10 @@ import Database.DataManager.FoodItem;
 
 public class UserDashboard {
 
-    private JPanel user, main, cardSide, orderSide, panelDish, allDish, mainDish, sideDish, drinkDish, dessertDish, panelButton, payRemove, panelSale;
+    private JPanel userPanel, mainPanel, cardSide, orderSide, panelDish, allDish, mainDish, sideDish, drinkDish, dessertDish, panelButton, payRemove, panelSale, userSubPanel;
     private JButton allButton, mainDishButton, sideDishButton, drinksButton, dessertButton, logoutButton;
     private JTable cartTable;
-    private JTextField textField1, textField2, textField3, textField4, textField5;
+    private JTextField subTotalField, vatField, totalField, amountField, changeField;
     private JButton payButton, removeButton;
     private JLabel welcomeLabel;
     private JFrame frame;
@@ -182,20 +178,20 @@ public class UserDashboard {
         double vat = subtotal * 0.12;
         double grandTotal = subtotal + vat;
 
-        if (textField1 instanceof JFormattedTextField) {
-            ((JFormattedTextField) textField1).setValue(subtotal);
-            ((JFormattedTextField) textField2).setValue(vat);
-            ((JFormattedTextField) textField3).setValue(grandTotal);
+        if (subTotalField instanceof JFormattedTextField) {
+            ((JFormattedTextField) subTotalField).setValue(subtotal);
+            ((JFormattedTextField) vatField).setValue(vat);
+            ((JFormattedTextField) totalField).setValue(grandTotal);
         } else {
-            textField1.setText(String.format("%.2f", subtotal));
-            textField2.setText(String.format("%.2f", vat));
-            textField3.setText(String.format("%.2f", grandTotal));
+            subTotalField.setText(String.format("%.2f", subtotal));
+            vatField.setText(String.format("%.2f", vat));
+            totalField.setText(String.format("%.2f", grandTotal));
         }
     }
 
     public UserDashboard(String userName) {
         frame = new JFrame("Jolikod - User Dashboard");
-        frame.setContentPane(this.user);
+        frame.setContentPane(this.userPanel);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
 
@@ -215,7 +211,7 @@ public class UserDashboard {
         cartTable.getTableHeader().setFont(cartTable.getTableHeader().getFont().deriveFont(Font.BOLD));
         cartTable.getTableHeader().setReorderingAllowed(false);
 
-        JTextField[] currencyFields = {textField1, textField2, textField3, textField4, textField5};
+        JTextField[] currencyFields = {subTotalField, vatField, totalField, amountField, changeField};
         for (JTextField f : currencyFields) ConfigureCurrencyField(f);
 
 
@@ -267,11 +263,11 @@ public class UserDashboard {
             }
 
             try {
-                double total = (textField3 instanceof JFormattedTextField) ?
-                        ((Number) ((JFormattedTextField) textField3).getValue()).doubleValue() :
-                        Double.parseDouble(textField3.getText().replaceAll("[^0-9.]", ""));
+                double total = (totalField instanceof JFormattedTextField) ?
+                        ((Number) ((JFormattedTextField) totalField).getValue()).doubleValue() :
+                        Double.parseDouble(totalField.getText().replaceAll("[^0-9.]", ""));
 
-                String rawCash = textField4.getText().replaceAll(",", "").trim();
+                String rawCash = amountField.getText().replaceAll(",", "").trim();
 
                 if (rawCash.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Please enter the cash amount received from the customer.", "Missing Payment", JOptionPane.WARNING_MESSAGE);
@@ -286,9 +282,9 @@ public class UserDashboard {
                 }
 
                 double change = cash - total;
-                textField5.setText(String.format("%,.2f", change));
+                changeField.setText(String.format("%,.2f", change));
 
-                String dirPath = System.getProperty("user.dir") + File.separator + "receipts";
+                String dirPath = System.getProperty("userPanel.dir") + File.separator + "receipts";
                 File dir = new File(dirPath);
                 if (!dir.exists()) dir.mkdirs();
 
@@ -298,11 +294,11 @@ public class UserDashboard {
 
                     JOptionPane.showMessageDialog(frame, "Payment Successful!\nChange: ₱" + String.format("%.2f", change), "Transaction Complete", JOptionPane.INFORMATION_MESSAGE);
 
-                    new OrderReceipt(model, textField1.getText(), textField2.getText(), textField3.getText(), textField4.getText(), textField5.getText(), userName, path);
+                    new OrderReceipt(model, subTotalField.getText(), vatField.getText(), totalField.getText(), amountField.getText(), changeField.getText(), userName, path);
                     model.setRowCount(0);
                     updateCalculations();
-                    textField4.setText("");
-                    textField5.setText("");
+                    amountField.setText("");
+                    changeField.setText("");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Failed to save the transaction to the database.", "Database Error", JOptionPane.ERROR_MESSAGE);
                 }

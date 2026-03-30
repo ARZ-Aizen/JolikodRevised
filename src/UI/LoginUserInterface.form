@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="UI.LoginUserInterface">
-  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+  <grid id="27dc6" binding="loginPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
       <xy x="230" y="104" width="2121" height="499"/>
     </constraints>
@@ -9,7 +9,7 @@
     </properties>
     <border type="none"/>
     <children>
-      <grid id="61c21" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="61c21" binding="leftPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="West"/>
         <properties>
           <background color="-339903"/>
@@ -26,7 +26,7 @@
           </component>
         </children>
       </grid>
-      <grid id="2615e" layout-manager="GridLayoutManager" row-count="11" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="12">
+      <grid id="2615e" binding="rightPanel" layout-manager="GridLayoutManager" row-count="11" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="12">
         <margin top="40" left="70" bottom="40" right="50"/>
         <constraints border-constraint="Center"/>
         <properties/>
@@ -102,7 +102,7 @@
               <text value="Welcome Back! Please login to proceed."/>
             </properties>
           </component>
-          <grid id="c54dd" binding="passwordWraapper" layout-manager="BorderLayout" hgap="0" vgap="0">
+          <grid id="c54dd" binding="passwordWrapper" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
               <grid row="7" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="300" height="40"/>
@@ -113,7 +113,7 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="513cd" class="javax.swing.JPasswordField" binding="passwordField1" default-binding="true">
+              <component id="513cd" class="javax.swing.JPasswordField" binding="passwordField">
                 <constraints border-constraint="Center"/>
                 <properties>
                   <font name="Inter" size="16" style="0"/>
@@ -140,7 +140,7 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="8225d" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+              <component id="8225d" class="javax.swing.JTextField" binding="usernameField">
                 <constraints border-constraint="Center"/>
                 <properties>
                   <font name="Inter" size="16" style="0"/>

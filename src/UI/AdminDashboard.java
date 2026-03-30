@@ -4,8 +4,6 @@ import Database.DataManager;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -15,11 +13,11 @@ import javax.swing.table.JTableHeader;
 
 public class AdminDashboard {
 
-    private JPanel admin, contentPanel, LeftPanel, card1, card2, card3, card4, btnCreateUser, OrderPanel, historyPanel, historyNamePanel, HistoryMain, salesPanel, salesLabelPanel, salesMain;
+    private JPanel adminPanel, contentPanel, leftPanel, card1, card2, card3, card4, btnCreateUser, OrderPanel, historyPanel, historyNamePanel, HistoryMain, salesPanel, salesLabelPanel, salesMain, adminSubPanel, mainPanel, framePanel;
     private JButton logoutButton, createUsersButton, createFoodButton, transactionHistoryButton, editReceiptButton, createUserButton, deleteButton, refreshButton, editButton, loadFoodToTable, editButton1, removeItemButton, addItemButton;
     private JTable userTable, foodTable, receiptTable, tableHistory;
     private JScrollPane FoodScroll, UserScroll, historyScroll, salesScroll;
-    private JLabel AdminLabel, foodImagePreview, totalSalesValue, totalOrdersValue, lifetimeSalesValue, avgOrderValue;
+    private JLabel adminLabel, foodImagePreview, totalSalesValue, totalOrdersValue, lifetimeSalesValue, avgOrderValue;
     private JFrame frame;
     private DataManager dataManager;
 
@@ -240,7 +238,7 @@ public class AdminDashboard {
 
     public AdminDashboard() {
         frame = new JFrame("Jolikod - Admin Dashboard");
-        frame.setContentPane(this.admin);
+        frame.setContentPane(this.adminPanel);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
@@ -452,8 +450,8 @@ public class AdminDashboard {
     }
 
     private void createUIComponents() {
-        AdminLabel = new JLabel();
-        AdminLabel.setFont(loadCustomFont(42f));
-        AdminLabel.setForeground(Color.decode("#FAD041"));
+        adminLabel = new JLabel();
+        adminLabel.setFont(loadCustomFont(42f));
+        adminLabel.setForeground(Color.decode("#FAD041"));
     }
 }
