@@ -92,10 +92,8 @@ public class DataManager {
     public boolean deleteUser(int id) {
         String sql = "DELETE FROM users WHERE id = ?";
         try (Connection conn = DatabaseHelper.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setInt(1, id);
             return pstmt.executeUpdate() > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -107,7 +105,6 @@ public class DataManager {
         String sql = "SELECT id, username, password FROM users";
 
         try (Connection conn = DatabaseHelper.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
             while (rs.next()) {
                 users.add(new Object[]{rs.getInt("id"), rs.getString("username"), rs.getString("password")});
             }
